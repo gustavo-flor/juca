@@ -3,6 +3,7 @@ package com.github.gustavoflor.juca.shared.util
 import com.github.gustavoflor.juca.core.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Account
 import com.github.gustavoflor.juca.core.entity.Wallet
+import com.github.gustavoflor.juca.core.usecase.CreditUseCase
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.CreditRequest
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.TransactRequest
 import java.math.RoundingMode
@@ -31,7 +32,7 @@ object Faker {
         updatedAt = LocalDateTime.now()
     )
 
-    fun wallet(merchantCategory: MerchantCategory = MerchantCategory.entries.random()) = Wallet(
+    fun wallet(merchantCategory: MerchantCategory = merchantCategory()) = Wallet(
         id = Random.nextLong(1, 99999),
         accountId = Random.nextLong(1, 99999),
         balance = money(),
@@ -58,6 +59,12 @@ object Faker {
     fun creditRequest(wallet: Wallet = wallet()) = CreditRequest(
         accountId = wallet.accountId,
         amount = money(),
-        merchantCategory = MerchantCategory.entries.random()
+        merchantCategory = merchantCategory()
+    )
+
+    fun creditUseCaseInput() = CreditUseCase.Input(
+        accountId = Random.nextLong(1, 99999),
+        merchantCategory = merchantCategory(),
+        amount = money()
     )
 }
