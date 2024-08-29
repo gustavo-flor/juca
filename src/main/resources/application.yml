@@ -1,0 +1,18 @@
+server:
+  port: ${PORT:8080}
+  shutdown: graceful
+  servlet:
+    context-path: /api
+spring:
+  application:
+    name: juca-monolith
+  main:
+    banner-mode: off
+  datasource:
+    url: jdbc:postgresql://localhost:5432/juca
+    username: postgres
+    password: postgres
+springdoc:
+  swagger-ui:
+    path: /
+  use-fqn: true
