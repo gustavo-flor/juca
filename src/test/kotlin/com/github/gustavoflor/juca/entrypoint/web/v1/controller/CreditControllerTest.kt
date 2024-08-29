@@ -23,6 +23,7 @@ class CreditControllerTest : ApiTest() {
     companion object {
         private const val RESOURCE_NOT_FOUND_CODE = "RESOURCE_NOT_FOUND"
         private const val INVALID_REQUEST_CODE = "INVALID_REQUEST"
+        private const val INTERNAL_SERVER_ERROR_CODE = "INTERNAL_SERVER_ERROR"
     }
 
     @MockBean
@@ -45,7 +46,7 @@ class CreditControllerTest : ApiTest() {
     }
 
     @Test
-    fun `Given an unknown account not found exception, when create credit, then should return 404 (Not Found)`() {
+    fun `Given an account not found exception, when create credit, then should return 404 (Not Found)`() {
         val wallet = Faker.wallet()
         doThrow(AccountNotFoundException()).`when`(creditUseCase).execute(any())
         val request = Faker.creditRequest(wallet)
@@ -59,6 +60,33 @@ class CreditControllerTest : ApiTest() {
         verify(creditUseCase).execute(inputCaptor.capture())
         val input = inputCaptor.firstValue
         assertThat(input.merchantCategory)
+    }
+
+    @Test
+    fun `Given an unknown exception, when create credit, then should return 500 (Internal Server Error)`() {
+        val wallet = Faker.wallet()
+        doThrow(RuntimeException()).`when`(creditUseCase).execute(any())
+        val request = Faker.creditRequest(wallet)
+
+        Endpoints.CreditController.create(request)
+            .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+            .body("code", `is`(INTERNAL_SERVER_ERROR_CODE))
+            .body("message", `is`("Something went wrong, try again later. If it persists, please check the logs to see the problems"))
+
+        val inputCaptor = argumentCaptor<CreditUseCase.Input>()
+        verify(creditUseCase).execute(inputCaptor.capture())
+        val input = inputCaptor.firstValue
+        assertThat(input.merchantCategory)
+    }
+
+    @Test
+    fun `Given no request body, when create, then should return 400 (Bad Request)`() {
+        Endpoints.CreditController.create()
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body("code", `is`(INVALID_REQUEST_CODE))
+            .body("message", `is`("Invalid request content, please check the docs to see the requirements"))
+
+        verify(creditUseCase, never()).execute(any())
     }
 
     @Test

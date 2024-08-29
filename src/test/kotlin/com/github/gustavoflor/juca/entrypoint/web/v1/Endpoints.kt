@@ -31,6 +31,13 @@ object Endpoints {
             .body(request)
             .post("/v1/credits")
             .then()
+
+        fun create(): ValidatableResponse = RestAssured.given()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .post("/v1/credits")
+            .then()
     }
 
     object TransactionController {

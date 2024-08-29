@@ -2,8 +2,6 @@ package com.github.gustavoflor.juca.data.repository.query
 
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.data.repository.query.mapper.WalletMapper
-import org.apache.logging.log4j.LogManager
-import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 

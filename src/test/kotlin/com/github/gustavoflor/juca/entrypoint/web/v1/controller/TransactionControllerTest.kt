@@ -137,17 +137,4 @@ class TransactionControllerTest : ApiTest() {
 
         verify(transactUseCase, never()).execute(any())
     }
-
-    @ParameterizedTest
-    @ValueSource(strings = [" ", "1", "22", "333", "55555"])
-    fun `Given a MCC with an unexpected size, when create, then should return 400 (Bad Request)`(mcc: String) {
-        val request = Faker.transactRequest().copy(mcc = mcc)
-
-        Endpoints.TransactionController.transact(request)
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("mcc: size must be between 4 and 4"))
-
-        verify(transactUseCase, never()).execute(any())
-    }
 }

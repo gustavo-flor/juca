@@ -1,8 +1,6 @@
 package com.github.gustavoflor.juca.entrypoint.web.v1
 
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
-import com.github.gustavoflor.juca.entrypoint.web.v1.controller.AccountController
-import com.github.gustavoflor.juca.entrypoint.web.v1.controller.CreditController
 import com.github.gustavoflor.juca.entrypoint.web.v1.response.ErrorResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
