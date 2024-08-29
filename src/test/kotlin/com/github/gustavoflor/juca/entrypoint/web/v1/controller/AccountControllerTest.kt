@@ -19,6 +19,10 @@ import org.springframework.http.HttpStatus
 import kotlin.random.Random
 
 class AccountControllerTest : ApiTest() {
+    companion object {
+        private const val RESOURCE_NOT_FOUND_CODE = "RESOURCE_NOT_FOUND"
+    }
+
     @MockBean
     private lateinit var findAccountDetailsByIdUseCase: FindAccountDetailsByIdUseCase
 
@@ -73,7 +77,7 @@ class AccountControllerTest : ApiTest() {
 
         Endpoints.AccountController.findById(accountId)
             .statusCode(HttpStatus.NOT_FOUND.value())
-            .body("code", `is`("RESOURCE_NOT_FOUND"))
+            .body("code", `is`(RESOURCE_NOT_FOUND_CODE))
             .body("message", `is`("Account not found"))
 
         val inputCaptor = argumentCaptor<FindAccountDetailsByIdUseCase.Input>()
