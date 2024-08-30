@@ -4,6 +4,7 @@ import com.github.gustavoflor.juca.core.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Account
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.usecase.CreditUseCase
+import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.CreditRequest
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.TransactRequest
 import java.math.RoundingMode
@@ -66,5 +67,13 @@ object Faker {
         accountId = Random.nextLong(1, 99999),
         merchantCategory = merchantCategory(),
         amount = money()
+    )
+
+    fun transactUseCaseInput() = TransactUseCase.Input(
+        accountId = Random.nextLong(1, 99999),
+        amount = money(),
+        merchantCategory = merchantCategory(),
+        externalId = UUID.randomUUID().toString(),
+        merchantName = numerify("PADARIA DO ZE*##            SAO PAULO BR")
     )
 }
