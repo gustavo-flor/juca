@@ -9,6 +9,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
+import org.mockito.kotlin.verify
 
 @ExtendWith(MockitoExtension::class)
 class TransactUseCaseImplTest {
@@ -25,5 +26,7 @@ class TransactUseCaseImplTest {
         val output = transactUseCase.execute(input)
 
         assertThat(output.result).isEqualTo(TransactionResult.ERROR)
+
+        verify(walletRepository).findByAccountId(input.accountId)
     }
 }
