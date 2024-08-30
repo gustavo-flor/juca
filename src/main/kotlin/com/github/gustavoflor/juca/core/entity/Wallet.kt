@@ -13,22 +13,11 @@ data class Wallet(
     val updatedAt: LocalDateTime? = null
 ) {
     companion object {
-        private val merchantCategoryFallback = MerchantCategory.CASH
-
         fun of(account: Account, merchantCategory: MerchantCategory) = Wallet(
             accountId = account.id,
             merchantCategory = merchantCategory,
             balance = BigDecimal.ZERO
         )
-
-        fun get(wallets: List<Wallet>, merchantCategory: MerchantCategory) = wallets.first() { it.merchantCategory == merchantCategory }
-
-        fun fallback(wallets: List<Wallet>, merchantCategory: MerchantCategory): Wallet? {
-            if (merchantCategory == merchantCategoryFallback) {
-                return null
-            }
-            return get(wallets, merchantCategoryFallback)
-        }
     }
 
     fun isNew() = id == null

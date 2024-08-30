@@ -26,7 +26,6 @@ class TransactUseCaseImplTest {
         val output = transactUseCase.execute(input)
 
         assertThat(output.result).isEqualTo(TransactionResult.ERROR)
-
-        verify(walletRepository).findByAccountId(input.accountId)
+        verify(walletRepository).findByAccountIdAndMerchantCategory(input.accountId, input.merchantCategory)
     }
 }

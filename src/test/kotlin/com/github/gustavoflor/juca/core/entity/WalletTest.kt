@@ -44,26 +44,6 @@ class WalletTest {
     }
 
     @Test
-    fun `Given a cash merchant category, when get fallback, then should return null`() {
-        val wallets = Faker.wallets()
-
-        val wallet = Wallet.fallback(wallets, MerchantCategory.CASH)
-
-        assertThat(wallet).isNull()
-    }
-
-    @ParameterizedTest
-    @EnumSource(value = MerchantCategory::class, mode = EnumSource.Mode.EXCLUDE, names = ["CASH"])
-    fun `Given a non-cash merchant category, when get fallback, then should return null`(merchantCategory: MerchantCategory) {
-        val wallets = Faker.wallets()
-
-        val wallet = Wallet.fallback(wallets, merchantCategory)
-
-        assertThat(wallet).isNotNull
-        assertThat(wallet?.merchantCategory).isNotEqualTo(merchantCategory)
-    }
-
-    @Test
     fun `Given an account, when instantiate, then should return the new wallet`() {
         val account = Faker.account()
         val merchantCategory = Faker.merchantCategory()
