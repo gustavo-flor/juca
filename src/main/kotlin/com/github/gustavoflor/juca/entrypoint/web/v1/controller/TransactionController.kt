@@ -6,7 +6,6 @@ import com.github.gustavoflor.juca.entrypoint.web.v1.request.TransactRequest
 import com.github.gustavoflor.juca.entrypoint.web.v1.response.TransactResponse
 import com.github.gustavoflor.juca.shared.util.TimeLimiterUtil
 import jakarta.validation.Valid
-import jakarta.validation.constraints.Positive
 import org.apache.logging.log4j.LogManager
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.MediaType
@@ -30,14 +29,14 @@ class TransactionController(
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun transact(
         @Valid @RequestBody request: TransactRequest,
-        @RequestHeader(value = ApiHeaders.TIMEOUT_DURATION) timeoutDuration: Long
+        @RequestHeader(value = ApiHeaders.REQUEST_DURATION) requestDuration: Long
     ): TransactResponse = runCatching {
         val task = Callable {
             val input = request.input()
             val output = transactUseCase.execute(input)
             TransactResponse(output.result.code)
         }
-        return TimeLimiterUtil.runOrCancel("transaction-time-limiter", timeoutDuration) {
+        return TimeLimiterUtil.runOrCancel("transaction-time-limiter", requestDuration) {
             transactionExecutorService.submit(task)
         }
     }.getOrElse {

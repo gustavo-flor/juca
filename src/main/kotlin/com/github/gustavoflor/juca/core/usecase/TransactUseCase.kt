@@ -22,7 +22,7 @@ interface TransactUseCase {
             externalId = externalId,
             amount = amount,
             merchantCategory = merchantCategory,
-            origin = merchantName,
+            origin = "$merchantName - $address",
             type = TransactionType.DEBIT,
             result = result
         )

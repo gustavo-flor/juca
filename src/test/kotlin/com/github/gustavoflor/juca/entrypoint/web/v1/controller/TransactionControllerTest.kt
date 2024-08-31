@@ -24,7 +24,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpStatus
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
-import kotlin.math.absoluteValue
 
 class TransactionControllerTest : ApiTest() {
     companion object {
@@ -95,7 +94,7 @@ class TransactionControllerTest : ApiTest() {
         Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("X-Timeout-Duration: Failed to convert value of type 'java.lang.String' to required type 'long'; For input string: \"\""))
+            .body("message", `is`("X-Request-Duration: Failed to convert value of type 'java.lang.String' to required type 'long'; For input string: \"\""))
 
         verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())

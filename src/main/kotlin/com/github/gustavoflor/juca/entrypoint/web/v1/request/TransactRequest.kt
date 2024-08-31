@@ -2,7 +2,6 @@ package com.github.gustavoflor.juca.entrypoint.web.v1.request
 
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import com.github.gustavoflor.juca.shared.validation.MCC
-import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
