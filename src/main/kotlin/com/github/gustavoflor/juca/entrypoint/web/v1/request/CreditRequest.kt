@@ -2,6 +2,7 @@ package com.github.gustavoflor.juca.entrypoint.web.v1.request
 
 import com.github.gustavoflor.juca.core.MerchantCategory
 import com.github.gustavoflor.juca.core.usecase.AddCreditUseCase
+import io.swagger.v3.oas.annotations.media.Schema
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import java.math.BigDecimal
@@ -12,6 +13,7 @@ data class CreditRequest(
     val accountId: Long? = null,
     @field:NotNull
     @field:Positive
+    @Schema(example = "100.0")
     val amount: BigDecimal? = null,
     @field:NotNull
     val merchantCategory: MerchantCategory? = null

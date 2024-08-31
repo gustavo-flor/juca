@@ -15,8 +15,15 @@ A monolith service referencing [Caju](https://caju.com.br), to put in practice "
 - Run docker compose
 
 ```shell
-docker compose up -d
+docker compose up -d --build
 ```
+
+- That's it!
+
+## API Docs
+
+- [OpenAPI](http://localhost:8080/api/v3/api-docs)
+- [Swagger UI](http://localhost:8080/api/swagger-ui/index.html)
 
 ## Use Cases
 

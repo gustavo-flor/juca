@@ -1,0 +1,5 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/juca
+    username: postgres
+    password: postgres

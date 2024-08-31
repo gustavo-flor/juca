@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:8080}
+  port: 8080
   shutdown: graceful
   servlet:
     context-path: /api
@@ -9,9 +9,9 @@ spring:
   main:
     banner-mode: off
   datasource:
-    url: jdbc:postgresql://localhost:5432/juca
-    username: postgres
-    password: postgres
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
 springdoc:
   swagger-ui:
     path: /

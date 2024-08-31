@@ -2,6 +2,7 @@ package com.github.gustavoflor.juca.entrypoint.web.v1.response
 
 import com.github.gustavoflor.juca.core.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Wallet
+import io.swagger.v3.oas.annotations.media.Schema
 import java.math.BigDecimal
 
 data class AccountResponse(
@@ -21,6 +22,7 @@ data class AccountResponse(
     }
 
     data class WalletDTO(
+        @Schema(example = "100.0")
         val balance: BigDecimal,
         val merchantCategory: MerchantCategory
     )
