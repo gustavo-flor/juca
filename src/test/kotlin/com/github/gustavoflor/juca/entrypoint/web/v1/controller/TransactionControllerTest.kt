@@ -14,7 +14,9 @@ import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.springframework.boot.test.mock.mockito.MockBean
@@ -56,6 +58,34 @@ class TransactionControllerTest : ApiTest() {
         assertThat(input.accountId).isEqualTo(request.accountId)
         assertThat(input.merchantName).isEqualTo(request.merchant?.take(25)?.trim())
         assertThat(input.address).isEqualTo(request.merchant?.takeLast(15)?.trim())
+    }
+
+    @Test
+    fun `Given a timeout, when transact, then should return 200 (Ok) with error code`() {
+        val timeoutDuration = 10L
+        val result = TransactionResult.APPROVED
+        val merchantCategory = Faker.merchantCategory()
+        doAnswer{
+            Thread.sleep(timeoutDuration)
+            TransactUseCase.Output(result)
+        }.`when`(transactUseCase).execute(any())
+        val request = Faker.transactRequest(merchantCategory)
+
+        Endpoints.TransactionController.transact(request, timeoutDuration.toString())
+            .statusCode(HttpStatus.OK.value())
+            .body("code", `is`(TransactionResult.ERROR.code))
+    }
+
+    @Test
+    fun `Given an exception, when transact, then should return 200 (Ok) with error code`() {
+        val timeoutDuration = 10L
+        val merchantCategory = Faker.merchantCategory()
+        doThrow(RuntimeException()).`when`(transactUseCase).execute(any())
+        val request = Faker.transactRequest(merchantCategory)
+
+        Endpoints.TransactionController.transact(request, timeoutDuration.toString())
+            .statusCode(HttpStatus.OK.value())
+            .body("code", `is`(TransactionResult.ERROR.code))
     }
 
     @Test

@@ -6,7 +6,7 @@ import java.time.Duration
 import java.util.concurrent.Future
 
 object TimeLimiterUtil {
-    fun <T> runWithMaxDuration(
+    fun <T> runOrCancel(
         name: String,
         timeoutDuration: Long,
         supplierTask: () -> Future<T>

@@ -4,7 +4,7 @@ import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import com.github.gustavoflor.juca.entrypoint.web.v1.ApiHeaders
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.TransactRequest
 import com.github.gustavoflor.juca.entrypoint.web.v1.response.TransactResponse
-import com.github.gustavoflor.juca.shared.util.TimeLimiterUtil.runWithMaxDuration
+import com.github.gustavoflor.juca.shared.util.TimeLimiterUtil
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Positive
 import org.apache.logging.log4j.LogManager
@@ -37,7 +37,7 @@ class TransactionController(
             val output = transactUseCase.execute(input)
             TransactResponse(output.result.code)
         }
-        return runWithMaxDuration("transaction-time-limiter", timeoutDuration) {
+        return TimeLimiterUtil.runOrCancel("transaction-time-limiter", timeoutDuration) {
             transactionExecutorService.submit(task)
         }
     }.getOrElse {
