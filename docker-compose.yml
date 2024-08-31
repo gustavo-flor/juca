@@ -1,11 +1,24 @@
 services:
+  app:
+    image: gustavo-flor/juca:latest
+    restart: on-failure
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: "prod"
+      DATASOURCE_URL: jdbc:postgresql://postgres:5432/juca
+      DATASOURCE_USERNAME: app-user
+      DATASOURCE_PASSWORD: app-pass
   postgres:
     image: postgres:15-alpine
     restart: on-failure
     environment:
       POSTGRES_DB: juca
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: app-user
+      POSTGRES_PASSWORD: app-pass
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -15,4 +28,3 @@ services:
       - '5432:5432'
     volumes:
       - ./migrations:/docker-entrypoint-initdb.d
-    command: ["postgres", "-c", "log_statement=ddl"]
