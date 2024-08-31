@@ -30,14 +30,14 @@ class CreditUseCaseImplTest {
 
         assertThatThrownBy { creditUseCase.execute(input) }.isInstanceOf(AccountNotFoundException::class.java)
 
-        verify(walletRepository).findByAccountIdAndMerchantCategory(input.accountId, input.merchantCategory)
+        verify(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
     }
 
     @Test
     fun `Given a known account, when execute, then should return an updated wallet`() {
         val input = Faker.creditUseCaseInput()
         val wallet = Faker.wallet().copy(merchantCategory = input.merchantCategory)
-        doReturn(wallet).`when`(walletRepository).findByAccountIdAndMerchantCategory(input.accountId, input.merchantCategory)
+        doReturn(wallet).`when`(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
         doAnswer { it.getArgument(0, Wallet::class.java) }.`when`(walletRepository).update(any())
 
         val output = creditUseCase.execute(input)
@@ -48,6 +48,6 @@ class CreditUseCaseImplTest {
         assertThat(output.wallet.merchantCategory).isEqualTo(wallet.merchantCategory)
         assertThat(output.wallet.createdAt).isEqualTo(wallet.createdAt)
         assertThat(output.wallet.updatedAt).isEqualTo(wallet.updatedAt)
-        verify(walletRepository).findByAccountIdAndMerchantCategory(input.accountId, input.merchantCategory)
+        verify(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
     }
 }

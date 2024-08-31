@@ -8,7 +8,7 @@ interface WalletRepository {
 
     fun findByAccountId(accountId: Long): List<Wallet>
 
-    fun findByAccountIdAndMerchantCategory(accountId: Long, merchantCategory: MerchantCategory): Wallet?
+    fun findByAccountIdAndMerchantCategoryForUpdate(accountId: Long, merchantCategory: MerchantCategory): Wallet?
 
     fun update(wallet: Wallet): Wallet
 }

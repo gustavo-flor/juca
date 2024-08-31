@@ -52,10 +52,14 @@ object Faker {
     fun transactRequest(merchantCategory: MerchantCategory = merchantCategory()) = TransactRequest(
         accountId = Random.nextLong(1, 99999),
         amount = money(),
-        mcc = merchantCategory.codes.randomOrNull() ?: Faker.numerify("#9##"),
+        mcc = mcc(merchantCategory),
         merchant = numerify("PADARIA DO ZE*##            SAO PAULO BR"),
         externalId = UUID.randomUUID().toString()
     )
+
+    fun mcc(
+        merchantCategory: MerchantCategory = merchantCategory()
+    ) = merchantCategory.codes.randomOrNull() ?: numerify("0###")
 
     fun creditRequest(wallet: Wallet = wallet()) = CreditRequest(
         accountId = wallet.accountId,
@@ -69,11 +73,12 @@ object Faker {
         amount = money()
     )
 
-    fun transactUseCaseInput() = TransactUseCase.Input(
+    fun transactUseCaseInput(merchantCategory: MerchantCategory = merchantCategory()) = TransactUseCase.Input(
         accountId = Random.nextLong(1, 99999),
         amount = money(),
-        merchantCategory = merchantCategory(),
+        mcc = mcc(merchantCategory),
         externalId = UUID.randomUUID().toString(),
-        merchantName = numerify("PADARIA DO ZE*##            SAO PAULO BR")
+        merchantName = numerify("PADARIA DO ZE*##"),
+        address = "SAO PAULO BR"
     )
 }

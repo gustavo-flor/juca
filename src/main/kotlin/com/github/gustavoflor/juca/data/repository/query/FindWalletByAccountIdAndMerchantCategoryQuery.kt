@@ -17,10 +17,9 @@ class FindWalletByAccountIdAndMerchantCategoryQuery(
             SELECT *
             FROM wallet
             WHERE account_id = :accountId AND merchant_category = :merchantCategory
+            FOR UPDATE
         """
     }
-
-    private val log = LogManager.getLogger(javaClass)
 
     fun execute(accountId: Long, merchantCategory: MerchantCategory): Wallet? {
         val params = mapOf(

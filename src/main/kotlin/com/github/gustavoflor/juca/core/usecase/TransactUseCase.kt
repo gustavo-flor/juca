@@ -1,6 +1,5 @@
 package com.github.gustavoflor.juca.core.usecase
 
-import com.github.gustavoflor.juca.core.MerchantCategory
 import com.github.gustavoflor.juca.core.TransactionResult
 import java.math.BigDecimal
 
@@ -11,8 +10,9 @@ interface TransactUseCase {
         val externalId: String,
         val accountId: Long,
         val amount: BigDecimal,
-        val merchantCategory: MerchantCategory,
-        val merchantName: String
+        val mcc: String,
+        val merchantName: String,
+        val address: String
     )
 
     data class Output(

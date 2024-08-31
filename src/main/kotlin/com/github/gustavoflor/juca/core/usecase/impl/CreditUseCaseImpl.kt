@@ -12,7 +12,7 @@ class CreditUseCaseImpl(
 ) : CreditUseCase {
     @Transactional
     override fun execute(input: CreditUseCase.Input): CreditUseCase.Output {
-        val wallet = walletRepository.findByAccountIdAndMerchantCategory(input.accountId, input.merchantCategory)
+        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
             ?: throw AccountNotFoundException()
         return wallet.credit(input.amount)
             .let { walletRepository.update(it) }

@@ -41,11 +41,12 @@ class TransactionControllerTest : ApiTest() {
         val inputCaptor = argumentCaptor<TransactUseCase.Input>()
         verify(transactUseCase).execute(inputCaptor.capture())
         val input = inputCaptor.firstValue
-        assertThat(input.merchantCategory).isEqualTo(merchantCategory)
+        assertThat(input.mcc).isEqualTo(request.mcc)
         assertThat(input.amount).isEqualTo(request.amount)
         assertThat(input.externalId).isEqualTo(request.externalId)
-        assertThat(input.merchantName).isEqualTo(request.merchant)
         assertThat(input.accountId).isEqualTo(request.accountId)
+        assertThat(input.merchantName).isEqualTo(request.merchant?.take(25)?.trim())
+        assertThat(input.address).isEqualTo(request.merchant?.takeLast(15)?.trim())
     }
 
     @Test
@@ -99,16 +100,34 @@ class TransactionControllerTest : ApiTest() {
         verify(transactUseCase, never()).execute(any())
     }
 
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = ["", " "])
-    fun `Given an invalid merchant, when create, then should return 400 (Bad Request)`(merchant: String?) {
-        val request = Faker.transactRequest().copy(merchant = merchant)
+    @Test
+    fun `Given a null merchant, when create, then should return 400 (Bad Request)`() {
+        val request = Faker.transactRequest().copy(merchant = null)
 
         Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("merchant: must not be blank"))
+            .body("message", `is`("merchant: must not be null"))
+
+        verify(transactUseCase, never()).execute(any())
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = [
+        "",
+        " ",
+        "PADARIA DO ZE*##",
+        "PADARIA DO ZE*#            SAO PAULO BR",
+        "PADARIA DO ZE*###            SAO PAULO BR"
+    ])
+    fun `Given an invalid merchant, when create, then should return 400 (Bad Request)`(merchant: String) {
+        val request = Faker.transactRequest()
+            .copy(merchant = Faker.numerify(merchant))
+
+        Endpoints.TransactionController.transact(request)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body("code", `is`(INVALID_REQUEST_CODE))
+            .body("message", `is`("merchant: size must be between 40 and 40"))
 
         verify(transactUseCase, never()).execute(any())
     }

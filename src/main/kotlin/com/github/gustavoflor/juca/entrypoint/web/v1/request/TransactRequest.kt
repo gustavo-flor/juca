@@ -22,14 +22,20 @@ data class TransactRequest(
     @field:Size(min = 4, max = 4)
     @field:Digits(integer = 4, fraction = 0)
     val mcc: String? = null,
-    @field:NotBlank
+    @field:NotNull
+    @field:Size(min = 40, max = 40)
     val merchant: String? = null
 ) {
-    fun input() = TransactUseCase.Input(
-        externalId = externalId!!,
-        accountId = accountId!!,
-        amount = amount!!,
-        merchantCategory = MerchantCategory.getByCode(mcc!!),
-        merchantName = merchant!!
-    )
+    fun input(): TransactUseCase.Input {
+        val merchantName = merchant!!.take(25).trim()
+        val address = merchant.takeLast(15).trim()
+        return TransactUseCase.Input(
+            externalId = externalId!!,
+            accountId = accountId!!,
+            amount = amount!!,
+            mcc = mcc!!,
+            merchantName = merchantName,
+            address = address
+        )
+    }
 }

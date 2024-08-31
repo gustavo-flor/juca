@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository
 @Repository
 class WalletRepositoryImpl(
     private val findWalletsByAccountIdQuery: FindWalletsByAccountIdQuery,
-    private val findWalletsByAccountIdAndMerchantCategoryQuery: FindWalletByAccountIdAndMerchantCategoryQuery,
+    private val findWalletsByAccountIdAndMerchantCategoryForUpdateQuery: FindWalletByAccountIdAndMerchantCategoryQuery,
     private val createWalletCommand: CreateWalletCommand,
     private val updateWalletCommand: UpdateWalletCommand
 ) : WalletRepository {
@@ -20,8 +20,8 @@ class WalletRepositoryImpl(
         return createWalletCommand.executeAll(wallets)
     }
 
-    override fun findByAccountIdAndMerchantCategory(accountId: Long, merchantCategory: MerchantCategory): Wallet? {
-        return findWalletsByAccountIdAndMerchantCategoryQuery.execute(accountId, merchantCategory)
+    override fun findByAccountIdAndMerchantCategoryForUpdate(accountId: Long, merchantCategory: MerchantCategory): Wallet? {
+        return findWalletsByAccountIdAndMerchantCategoryForUpdateQuery.execute(accountId, merchantCategory)
     }
 
     override fun findByAccountId(accountId: Long): List<Wallet> {
