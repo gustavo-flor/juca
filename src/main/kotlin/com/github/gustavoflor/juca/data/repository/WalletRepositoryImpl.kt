@@ -5,14 +5,14 @@ import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.data.repository.command.CreateWalletCommand
 import com.github.gustavoflor.juca.data.repository.command.UpdateWalletCommand
-import com.github.gustavoflor.juca.data.repository.query.FindWalletByAccountIdAndMerchantCategoryQuery
+import com.github.gustavoflor.juca.data.repository.query.FindWalletByAccountIdAndMerchantCategoryForUpdateQuery
 import com.github.gustavoflor.juca.data.repository.query.FindWalletsByAccountIdQuery
 import org.springframework.stereotype.Repository
 
 @Repository
 class WalletRepositoryImpl(
     private val findWalletsByAccountIdQuery: FindWalletsByAccountIdQuery,
-    private val findWalletsByAccountIdAndMerchantCategoryForUpdateQuery: FindWalletByAccountIdAndMerchantCategoryQuery,
+    private val findWalletsByAccountIdAndMerchantCategoryForUpdateQuery: FindWalletByAccountIdAndMerchantCategoryForUpdateQuery,
     private val createWalletCommand: CreateWalletCommand,
     private val updateWalletCommand: UpdateWalletCommand
 ) : WalletRepository {

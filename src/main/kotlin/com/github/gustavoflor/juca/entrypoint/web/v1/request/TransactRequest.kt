@@ -1,6 +1,5 @@
 package com.github.gustavoflor.juca.entrypoint.web.v1.request
 
-import com.github.gustavoflor.juca.core.MerchantCategory
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotBlank

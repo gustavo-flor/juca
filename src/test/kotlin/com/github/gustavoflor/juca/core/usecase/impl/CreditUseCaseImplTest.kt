@@ -1,7 +1,11 @@
 package com.github.gustavoflor.juca.core.usecase.impl
 
+import com.github.gustavoflor.juca.core.TransactionResult
+import com.github.gustavoflor.juca.core.TransactionType
+import com.github.gustavoflor.juca.core.entity.Transaction
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
+import com.github.gustavoflor.juca.core.repository.TransactionRepository
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.Assertions.assertThat
@@ -13,6 +17,7 @@ import org.mockito.Mock
 import org.mockito.Mockito.doReturn
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.verify
 
@@ -20,6 +25,9 @@ import org.mockito.kotlin.verify
 class CreditUseCaseImplTest {
     @Mock
     private lateinit var walletRepository: WalletRepository
+
+    @Mock
+    private lateinit var transactionRepository: TransactionRepository
 
     @InjectMocks
     private lateinit var creditUseCase: CreditUseCaseImpl
@@ -49,5 +57,18 @@ class CreditUseCaseImplTest {
         assertThat(output.wallet.createdAt).isEqualTo(wallet.createdAt)
         assertThat(output.wallet.updatedAt).isEqualTo(wallet.updatedAt)
         verify(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
+        verify(walletRepository).update(output.wallet)
+        val transactionCaptor = argumentCaptor<Transaction>()
+        verify(transactionRepository).create(transactionCaptor.capture())
+        val transaction = transactionCaptor.firstValue
+        assertThat(transaction.id).isNull()
+        assertThat(transaction.accountId).isEqualTo(input.accountId)
+        assertThat(transaction.externalId).isNotBlank()
+        assertThat(transaction.origin).isEqualTo("Juca API")
+        assertThat(transaction.amount).isEqualTo(input.amount)
+        assertThat(transaction.type).isEqualTo(TransactionType.CREDIT)
+        assertThat(transaction.merchantCategory).isEqualTo(input.merchantCategory)
+        assertThat(transaction.result).isEqualTo(TransactionResult.APPROVED)
+        assertThat(transaction.createdAt).isNull()
     }
 }

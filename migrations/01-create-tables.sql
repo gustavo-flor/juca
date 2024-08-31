@@ -16,3 +16,18 @@ CREATE TABLE IF NOT EXISTS wallet(
     CONSTRAINT fk_account_wallet_account_id FOREIGN KEY (account_id) REFERENCES account(id),
     UNIQUE(account_id, merchant_category)
 );
+
+CREATE TABLE IF NOT EXISTS transaction(
+    id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
+    account_id BIGINT NOT NULL,
+    external_id VARCHAR NOT NULL,
+    origin VARCHAR NOT NULL,
+    amount DECIMAL NOT NULL,
+    type VARCHAR NOT NULL,
+    merchant_category VARCHAR NOT NULL,
+    result VARCHAR NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id),
+    CONSTRAINT fk_account_transaction_account_id FOREIGN KEY (account_id) REFERENCES account(id),
+    UNIQUE(external_id)
+);

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.HandlerMethodValidationException
+import java.util.concurrent.TimeoutException
 
 @RestControllerAdvice
 class ExceptionControllerAdvice {
@@ -51,6 +52,13 @@ class ExceptionControllerAdvice {
     fun handleOfferNotFoundException(exception: AccountNotFoundException) = ErrorResponse(
         code = ErrorResponse.Code.RESOURCE_NOT_FOUND,
         message = exception.message
+    )
+
+    @ExceptionHandler(TimeoutException::class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    fun handleTimeoutException(exception: TimeoutException) = ErrorResponse(
+        code = ErrorResponse.Code.TIMEOUT,
+        message = "Request timed out. Please try again later."
     )
 
     @ExceptionHandler(Exception::class)
