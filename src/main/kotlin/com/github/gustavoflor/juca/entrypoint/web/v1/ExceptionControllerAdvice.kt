@@ -6,10 +6,12 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
 import org.springframework.web.bind.MethodArgumentNotValidException
+import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.HandlerMethodValidationException
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import java.util.concurrent.TimeoutException
 
 @RestControllerAdvice
@@ -43,7 +45,9 @@ class ExceptionControllerAdvice {
         log.warn(exception.message, exception)
         return ErrorResponse(
             code = ErrorResponse.Code.INVALID_REQUEST,
-            message = exception.valueResults.first()?.let { "${it.methodParameter.parameterName}: ${it.resolvableErrors.first().defaultMessage}" } ?: INVALID_REQUEST_MESSAGE
+            message = exception.valueResults.firstOrNull()
+                ?.let { "${it.methodParameter.parameterName}: ${it.resolvableErrors.first().defaultMessage}" }
+                ?: INVALID_REQUEST_MESSAGE
         )
     }
 
@@ -54,11 +58,18 @@ class ExceptionControllerAdvice {
         message = exception.message
     )
 
-    @ExceptionHandler(TimeoutException::class)
-    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
-    fun handleTimeoutException(exception: TimeoutException) = ErrorResponse(
-        code = ErrorResponse.Code.TIMEOUT,
-        message = "Request timed out. Please try again later."
+    @ExceptionHandler(MissingRequestHeaderException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleMissingRequestHeaderException(exception: MissingRequestHeaderException) = ErrorResponse(
+        code = ErrorResponse.Code.INVALID_REQUEST,
+        message = exception.message
+    )
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleMethodArgumentTypeMismatchException(exception: MethodArgumentTypeMismatchException) = ErrorResponse(
+        code = ErrorResponse.Code.INVALID_REQUEST,
+        message = "${exception.propertyName}: ${exception.message}"
     )
 
     @ExceptionHandler(Exception::class)

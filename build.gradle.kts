@@ -8,6 +8,7 @@ plugins {
 val springdocVersion = "2.6.0"
 val restAssuredVersion = "5.5.0"
 val mockitoKotlinVersion = "5.4.0"
+val resilience4jVersion = "2.2.0"
 
 group = "com.github.gustavo-flor"
 version = "0.0.1-SNAPSHOT"
@@ -30,6 +31,8 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
+    implementation("io.github.resilience4j:resilience4j-spring-boot3:$resilience4jVersion")
+    implementation("io.github.resilience4j:resilience4j-all:$resilience4jVersion")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

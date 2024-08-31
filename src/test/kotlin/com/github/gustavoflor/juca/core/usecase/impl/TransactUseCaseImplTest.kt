@@ -1,12 +1,14 @@
 package com.github.gustavoflor.juca.core.usecase.impl
 
 import com.github.gustavoflor.juca.core.TransactionResult
+import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
 import com.github.gustavoflor.juca.core.policy.DebitPolicy
 import com.github.gustavoflor.juca.core.repository.MerchantCategoryTermRepository
 import com.github.gustavoflor.juca.core.repository.TransactionRepository
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -70,9 +72,8 @@ class TransactUseCaseImplTest {
         val merchantCategory = Faker.merchantCategory()
         val input = Faker.transactUseCaseInput(merchantCategory)
 
-        val output = transactUseCase.execute(input)
+        assertThatThrownBy { transactUseCase.execute(input) }.isInstanceOf(AccountNotFoundException::class.java)
 
-        assertThat(output.result).isEqualTo(TransactionResult.ERROR)
         inOrder.verify(transactionRepository).findByExternalId(input.externalId)
         inOrder.verify(merchantCategoryTermRepository).findAll()
         inOrder.verify(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, merchantCategory)

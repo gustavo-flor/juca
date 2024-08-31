@@ -1,7 +1,6 @@
 package com.github.gustavoflor.juca.core.usecase.impl
 
 import com.github.gustavoflor.juca.core.MerchantCategory
-import com.github.gustavoflor.juca.core.TransactionResult
 import com.github.gustavoflor.juca.core.entity.Transaction
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
@@ -12,6 +11,7 @@ import com.github.gustavoflor.juca.core.repository.TransactionRepository
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import org.apache.logging.log4j.LogManager
+import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 
 @UseCase
@@ -27,13 +27,12 @@ class TransactUseCaseImpl(
 
     private val log = LogManager.getLogger(javaClass)
 
-    override fun execute(input: TransactUseCase.Input): TransactUseCase.Output = runCatching {
+    @Transactional
+    override fun execute(input: TransactUseCase.Input): TransactUseCase.Output {
+        log.info("Executing transact use case...")
         val transaction = findByExternalId(input.externalId)
             ?: transact(input)
         return TransactUseCase.Output(transaction.result)
-    }.getOrElse {
-        log.error("Something went wrong on transact use case execution [{}]", it.message, it)
-        return TransactUseCase.Output(TransactionResult.ERROR)
     }
 
     private fun findByExternalId(externalId: String): Transaction? {

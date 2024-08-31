@@ -7,7 +7,6 @@ data class ErrorResponse(
     enum class Code {
         INVALID_REQUEST,
         RESOURCE_NOT_FOUND,
-        INTERNAL_SERVER_ERROR,
-        TIMEOUT;
+        INTERNAL_SERVER_ERROR;
     }
 }
