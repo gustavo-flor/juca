@@ -5,6 +5,7 @@ import com.github.gustavoflor.juca.entrypoint.web.v1.response.ErrorResponse
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.MissingRequestHeaderException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -33,6 +34,7 @@ class ExceptionControllerAdvice {
     @ExceptionHandler(HttpMessageNotReadableException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleHttpMessageNotReadableException(exception: HttpMessageNotReadableException): ErrorResponse {
+        log.warn(exception.message, exception)
         return ErrorResponse(
             code = ErrorResponse.Code.INVALID_REQUEST,
             message = INVALID_REQUEST_MESSAGE

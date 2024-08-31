@@ -2,7 +2,7 @@ package com.github.gustavoflor.juca.entrypoint.web.v1.controller
 
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
 import com.github.gustavoflor.juca.core.usecase.CreateAccountUseCase
-import com.github.gustavoflor.juca.core.usecase.FindAccountDetailsByIdUseCase
+import com.github.gustavoflor.juca.core.usecase.FindWalletsByAccountIdUseCase
 import com.github.gustavoflor.juca.entrypoint.ApiTest
 import com.github.gustavoflor.juca.entrypoint.web.v1.Endpoints
 import com.github.gustavoflor.juca.shared.util.Faker
@@ -24,7 +24,7 @@ class AccountControllerTest : ApiTest() {
     }
 
     @MockBean
-    private lateinit var findAccountDetailsByIdUseCase: FindAccountDetailsByIdUseCase
+    private lateinit var findWalletsByAccountIdUseCase: FindWalletsByAccountIdUseCase
 
     @MockBean
     private lateinit var createAccountUseCase: CreateAccountUseCase
@@ -52,7 +52,7 @@ class AccountControllerTest : ApiTest() {
     fun `Given an ID, when find by ID, then should return 200 (OK)`() {
         val accountId = Random.nextLong(1, 99999)
         val wallets = Faker.wallets().map { it.copy(accountId = accountId) }
-        doReturn(FindAccountDetailsByIdUseCase.Output(wallets)).`when`(findAccountDetailsByIdUseCase).execute(any())
+        doReturn(FindWalletsByAccountIdUseCase.Output(wallets)).`when`(findWalletsByAccountIdUseCase).execute(any())
 
         Endpoints.AccountController.findById(accountId)
             .statusCode(HttpStatus.OK.value())
@@ -64,25 +64,25 @@ class AccountControllerTest : ApiTest() {
             .body("wallets[2].balance", `is`(wallets[2].balance.toFloat()))
             .body("wallets[2].merchantCategory", `is`(wallets[2].merchantCategory.name))
 
-        val inputCaptor = argumentCaptor<FindAccountDetailsByIdUseCase.Input>()
-        verify(findAccountDetailsByIdUseCase).execute(inputCaptor.capture())
+        val inputCaptor = argumentCaptor<FindWalletsByAccountIdUseCase.Input>()
+        verify(findWalletsByAccountIdUseCase).execute(inputCaptor.capture())
         val input = inputCaptor.firstValue
-        assertThat(input.id).isEqualTo(accountId)
+        assertThat(input.accountId).isEqualTo(accountId)
     }
 
     @Test
     fun `Given an account not found exception, when find by ID, then should return 404 (Not Found)`() {
         val accountId = Random.nextLong(1, 99999)
-        doThrow(AccountNotFoundException()).`when`(findAccountDetailsByIdUseCase).execute(any())
+        doThrow(AccountNotFoundException()).`when`(findWalletsByAccountIdUseCase).execute(any())
 
         Endpoints.AccountController.findById(accountId)
             .statusCode(HttpStatus.NOT_FOUND.value())
             .body("code", `is`(RESOURCE_NOT_FOUND_CODE))
             .body("message", `is`("Account not found"))
 
-        val inputCaptor = argumentCaptor<FindAccountDetailsByIdUseCase.Input>()
-        verify(findAccountDetailsByIdUseCase).execute(inputCaptor.capture())
+        val inputCaptor = argumentCaptor<FindWalletsByAccountIdUseCase.Input>()
+        verify(findWalletsByAccountIdUseCase).execute(inputCaptor.capture())
         val input = inputCaptor.firstValue
-        assertThat(input.id).isEqualTo(accountId)
+        assertThat(input.accountId).isEqualTo(accountId)
     }
 }

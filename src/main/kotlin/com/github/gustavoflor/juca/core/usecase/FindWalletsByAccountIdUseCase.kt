@@ -2,11 +2,11 @@ package com.github.gustavoflor.juca.core.usecase
 
 import com.github.gustavoflor.juca.core.entity.Wallet
 
-interface FindAccountDetailsByIdUseCase {
+interface FindWalletsByAccountIdUseCase {
     fun execute(input: Input): Output
 
     data class Input(
-        val id: Long
+        val accountId: Long
     )
 
     data class Output(

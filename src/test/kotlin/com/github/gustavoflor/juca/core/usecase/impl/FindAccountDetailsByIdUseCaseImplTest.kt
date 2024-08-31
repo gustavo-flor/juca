@@ -2,7 +2,7 @@ package com.github.gustavoflor.juca.core.usecase.impl
 
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
 import com.github.gustavoflor.juca.core.repository.WalletRepository
-import com.github.gustavoflor.juca.core.usecase.FindAccountDetailsByIdUseCase
+import com.github.gustavoflor.juca.core.usecase.FindWalletsByAccountIdUseCase
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -21,12 +21,12 @@ class FindAccountDetailsByIdUseCaseImplTest {
     private lateinit var walletRepository: WalletRepository
 
     @InjectMocks
-    private lateinit var findAccountDetailsByIdUseCase: FindAccountDetailsByIdUseCaseImpl
+    private lateinit var findAccountDetailsByIdUseCase: FindWalletsByAccountIdUseCaseImpl
 
     @Test
     fun `Given an unknown ID, when execute, then should throw account not found exception`() {
         val id = Random.nextLong(1, 99999)
-        val input = FindAccountDetailsByIdUseCase.Input(id)
+        val input = FindWalletsByAccountIdUseCase.Input(id)
 
         assertThatThrownBy { findAccountDetailsByIdUseCase.execute(input) }
             .isInstanceOf(AccountNotFoundException::class.java)
@@ -37,7 +37,7 @@ class FindAccountDetailsByIdUseCaseImplTest {
     @Test
     fun `Given a known, when execute, then should return a list of wallets`() {
         val id = Random.nextLong(1, 99999)
-        val input = FindAccountDetailsByIdUseCase.Input(id)
+        val input = FindWalletsByAccountIdUseCase.Input(id)
         val wallets = Faker.wallets()
         doReturn(wallets).`when`(walletRepository).findByAccountId(id)
 

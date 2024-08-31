@@ -3,17 +3,17 @@ package com.github.gustavoflor.juca.core.usecase.impl
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
 import com.github.gustavoflor.juca.core.mapping.UseCase
 import com.github.gustavoflor.juca.core.repository.WalletRepository
-import com.github.gustavoflor.juca.core.usecase.FindAccountDetailsByIdUseCase
+import com.github.gustavoflor.juca.core.usecase.FindWalletsByAccountIdUseCase
 
 @UseCase
-class FindAccountDetailsByIdUseCaseImpl(
+class FindWalletsByAccountIdUseCaseImpl(
     private val walletRepository: WalletRepository
-) : FindAccountDetailsByIdUseCase {
-    override fun execute(input: FindAccountDetailsByIdUseCase.Input): FindAccountDetailsByIdUseCase.Output {
-        val wallets = walletRepository.findByAccountId(input.id)
+) : FindWalletsByAccountIdUseCase {
+    override fun execute(input: FindWalletsByAccountIdUseCase.Input): FindWalletsByAccountIdUseCase.Output {
+        val wallets = walletRepository.findByAccountId(input.accountId)
         if (wallets.isEmpty()) {
             throw AccountNotFoundException()
         }
-        return FindAccountDetailsByIdUseCase.Output(wallets)
+        return FindWalletsByAccountIdUseCase.Output(wallets)
     }
 }

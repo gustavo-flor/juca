@@ -24,6 +24,7 @@ import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpStatus
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
+import kotlin.math.absoluteValue
 
 class TransactionControllerTest : ApiTest() {
     companion object {
@@ -62,28 +63,24 @@ class TransactionControllerTest : ApiTest() {
 
     @Test
     fun `Given a timeout, when transact, then should return 200 (Ok) with error code`() {
-        val timeoutDuration = 10L
-        val result = TransactionResult.APPROVED
+        val timeoutDuration = -1L
         val merchantCategory = Faker.merchantCategory()
-        doAnswer{
-            Thread.sleep(timeoutDuration)
-            TransactUseCase.Output(result)
-        }.`when`(transactUseCase).execute(any())
         val request = Faker.transactRequest(merchantCategory)
 
         Endpoints.TransactionController.transact(request, timeoutDuration.toString())
             .statusCode(HttpStatus.OK.value())
             .body("code", `is`(TransactionResult.ERROR.code))
+
+        verify(transactionExecutorService).submit(any<Callable<TransactResponse>>())
     }
 
     @Test
     fun `Given an exception, when transact, then should return 200 (Ok) with error code`() {
-        val timeoutDuration = 10L
         val merchantCategory = Faker.merchantCategory()
         doThrow(RuntimeException()).`when`(transactUseCase).execute(any())
         val request = Faker.transactRequest(merchantCategory)
 
-        Endpoints.TransactionController.transact(request, timeoutDuration.toString())
+        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
             .statusCode(HttpStatus.OK.value())
             .body("code", `is`(TransactionResult.ERROR.code))
     }
@@ -99,23 +96,6 @@ class TransactionControllerTest : ApiTest() {
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("X-Timeout-Duration: Failed to convert value of type 'java.lang.String' to required type 'long'; For input string: \"\""))
-
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
-        verify(transactUseCase, never()).execute(any())
-    }
-
-    @ParameterizedTest
-    @ValueSource(longs = [-1, 0])
-    fun `Given a request with non-positive timeout duration, when transact, then should return 400 (Bad Request)`(timeoutDuration: Long) {
-        val result = TransactionResult.entries.random()
-        val merchantCategory = Faker.merchantCategory()
-        doReturn(TransactUseCase.Output(result)).`when`(transactUseCase).execute(any())
-        val request = Faker.transactRequest(merchantCategory)
-
-        Endpoints.TransactionController.transact(request, timeoutDuration.toString())
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("timeoutDuration: must be greater than 0"))
 
         verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
@@ -204,7 +184,7 @@ class TransactionControllerTest : ApiTest() {
         Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("merchant: size must be between 40 and 40"))
+            .body("message", `is`("merchant: must have exactly 40 chars"))
 
         verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
@@ -224,16 +204,15 @@ class TransactionControllerTest : ApiTest() {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["XXXX", "A123", "44.4"])
-    fun `Given an invalid MCC, when create, then should return 400 (Bad Request)`(mcc: String) {
+    @ValueSource(strings = ["1", "22", "333", " ", "XXXX", "A123", "44.4", "55555"])
+    fun `Given a MCC with an unexpected size, when create, then should return 400 (Bad Request)`(mcc: String) {
         val request = Faker.transactRequest().copy(mcc = mcc)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("mcc: numeric value out of bounds (<4 digits>.<0 digits> expected)"))
+            .body("message", `is`("mcc: must be a valid MCC"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 }

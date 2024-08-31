@@ -1,7 +1,7 @@
 package com.github.gustavoflor.juca.entrypoint.web.v1.request
 
 import com.github.gustavoflor.juca.core.MerchantCategory
-import com.github.gustavoflor.juca.core.usecase.CreditUseCase
+import com.github.gustavoflor.juca.core.usecase.AddCreditUseCase
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import java.math.BigDecimal
@@ -16,7 +16,7 @@ data class CreditRequest(
     @field:NotNull
     val merchantCategory: MerchantCategory? = null
 ) {
-    fun input() = CreditUseCase.Input(
+    fun input() = AddCreditUseCase.Input(
         accountId = accountId!!,
         amount = amount!!,
         merchantCategory = merchantCategory!!

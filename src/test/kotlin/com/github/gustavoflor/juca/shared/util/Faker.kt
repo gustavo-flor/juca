@@ -6,7 +6,7 @@ import com.github.gustavoflor.juca.core.TransactionType
 import com.github.gustavoflor.juca.core.entity.Account
 import com.github.gustavoflor.juca.core.entity.Transaction
 import com.github.gustavoflor.juca.core.entity.Wallet
-import com.github.gustavoflor.juca.core.usecase.CreditUseCase
+import com.github.gustavoflor.juca.core.usecase.AddCreditUseCase
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.CreditRequest
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.TransactRequest
@@ -82,7 +82,7 @@ object Faker {
         merchantCategory = merchantCategory()
     )
 
-    fun creditUseCaseInput() = CreditUseCase.Input(
+    fun creditUseCaseInput() = AddCreditUseCase.Input(
         accountId = Random.nextLong(1, 99999),
         merchantCategory = merchantCategory(),
         amount = money()

@@ -1,7 +1,7 @@
 package com.github.gustavoflor.juca.entrypoint.web.v1.controller
 
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
-import com.github.gustavoflor.juca.core.usecase.CreditUseCase
+import com.github.gustavoflor.juca.core.usecase.AddCreditUseCase
 import com.github.gustavoflor.juca.entrypoint.ApiTest
 import com.github.gustavoflor.juca.entrypoint.web.v1.Endpoints
 import com.github.gustavoflor.juca.shared.util.Faker
@@ -27,20 +27,20 @@ class CreditControllerTest : ApiTest() {
     }
 
     @MockBean
-    private lateinit var creditUseCase: CreditUseCase
+    private lateinit var addCreditUseCase: AddCreditUseCase
 
     @Test
     fun `Given a request, when create credit, then should return 201 (Created)`() {
         val wallet = Faker.wallet()
-        doReturn(CreditUseCase.Output(wallet)).`when`(creditUseCase).execute(any())
+        doReturn(AddCreditUseCase.Output(wallet)).`when`(addCreditUseCase).execute(any())
         val request = Faker.creditRequest(wallet)
 
         Endpoints.CreditController.create(request)
             .statusCode(HttpStatus.CREATED.value())
             .body("balance", `is`(wallet.balance.toFloat()))
 
-        val inputCaptor = argumentCaptor<CreditUseCase.Input>()
-        verify(creditUseCase).execute(inputCaptor.capture())
+        val inputCaptor = argumentCaptor<AddCreditUseCase.Input>()
+        verify(addCreditUseCase).execute(inputCaptor.capture())
         val input = inputCaptor.firstValue
         assertThat(input.merchantCategory)
     }
@@ -48,7 +48,7 @@ class CreditControllerTest : ApiTest() {
     @Test
     fun `Given an account not found exception, when create credit, then should return 404 (Not Found)`() {
         val wallet = Faker.wallet()
-        doThrow(AccountNotFoundException()).`when`(creditUseCase).execute(any())
+        doThrow(AccountNotFoundException()).`when`(addCreditUseCase).execute(any())
         val request = Faker.creditRequest(wallet)
 
         Endpoints.CreditController.create(request)
@@ -56,8 +56,8 @@ class CreditControllerTest : ApiTest() {
             .body("code", `is`(RESOURCE_NOT_FOUND_CODE))
             .body("message", `is`("Account not found"))
 
-        val inputCaptor = argumentCaptor<CreditUseCase.Input>()
-        verify(creditUseCase).execute(inputCaptor.capture())
+        val inputCaptor = argumentCaptor<AddCreditUseCase.Input>()
+        verify(addCreditUseCase).execute(inputCaptor.capture())
         val input = inputCaptor.firstValue
         assertThat(input.merchantCategory)
     }
@@ -65,7 +65,7 @@ class CreditControllerTest : ApiTest() {
     @Test
     fun `Given an unknown exception, when create credit, then should return 500 (Internal Server Error)`() {
         val wallet = Faker.wallet()
-        doThrow(RuntimeException()).`when`(creditUseCase).execute(any())
+        doThrow(RuntimeException()).`when`(addCreditUseCase).execute(any())
         val request = Faker.creditRequest(wallet)
 
         Endpoints.CreditController.create(request)
@@ -73,8 +73,8 @@ class CreditControllerTest : ApiTest() {
             .body("code", `is`(INTERNAL_SERVER_ERROR_CODE))
             .body("message", `is`("Something went wrong, try again later. If it persists, please check the logs to see the problems"))
 
-        val inputCaptor = argumentCaptor<CreditUseCase.Input>()
-        verify(creditUseCase).execute(inputCaptor.capture())
+        val inputCaptor = argumentCaptor<AddCreditUseCase.Input>()
+        verify(addCreditUseCase).execute(inputCaptor.capture())
         val input = inputCaptor.firstValue
         assertThat(input.merchantCategory)
     }
@@ -86,7 +86,7 @@ class CreditControllerTest : ApiTest() {
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("Invalid request content, please check the docs to see the requirements"))
 
-        verify(creditUseCase, never()).execute(any())
+        verify(addCreditUseCase, never()).execute(any())
     }
 
     @Test
@@ -98,7 +98,7 @@ class CreditControllerTest : ApiTest() {
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("accountId: must not be null"))
 
-        verify(creditUseCase, never()).execute(any())
+        verify(addCreditUseCase, never()).execute(any())
     }
 
     @ParameterizedTest
@@ -111,7 +111,7 @@ class CreditControllerTest : ApiTest() {
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("accountId: must be greater than 0"))
 
-        verify(creditUseCase, never()).execute(any())
+        verify(addCreditUseCase, never()).execute(any())
     }
 
     @Test
@@ -123,7 +123,7 @@ class CreditControllerTest : ApiTest() {
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("amount: must not be null"))
 
-        verify(creditUseCase, never()).execute(any())
+        verify(addCreditUseCase, never()).execute(any())
     }
 
     @ParameterizedTest
@@ -136,7 +136,7 @@ class CreditControllerTest : ApiTest() {
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("amount: must be greater than 0"))
 
-        verify(creditUseCase, never()).execute(any())
+        verify(addCreditUseCase, never()).execute(any())
     }
 
     @Test
@@ -148,6 +148,6 @@ class CreditControllerTest : ApiTest() {
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("merchantCategory: must not be null"))
 
-        verify(creditUseCase, never()).execute(any())
+        verify(addCreditUseCase, never()).execute(any())
     }
 }

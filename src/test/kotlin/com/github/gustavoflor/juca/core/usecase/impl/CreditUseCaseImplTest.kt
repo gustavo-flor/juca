@@ -30,7 +30,7 @@ class CreditUseCaseImplTest {
     private lateinit var transactionRepository: TransactionRepository
 
     @InjectMocks
-    private lateinit var creditUseCase: CreditUseCaseImpl
+    private lateinit var creditUseCase: AddCreditUseCaseImpl
 
     @Test
     fun `Given an unknown account, when execute, then should throw account not found exception`() {

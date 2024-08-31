@@ -1,6 +1,7 @@
 package com.github.gustavoflor.juca.entrypoint.web.v1.request
 
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
+import com.github.gustavoflor.juca.shared.validation.MCC
 import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
@@ -18,11 +19,10 @@ data class TransactRequest(
     @field:Positive
     val amount: BigDecimal? = null,
     @field:NotNull
-    @field:Size(min = 4, max = 4)
-    @field:Digits(integer = 4, fraction = 0)
+    @field:MCC
     val mcc: String? = null,
     @field:NotNull
-    @field:Size(min = 40, max = 40)
+    @field:Size(min = 40, max = 40, message = "must have exactly 40 chars")
     val merchant: String? = null
 ) {
     fun input(): TransactUseCase.Input {

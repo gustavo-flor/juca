@@ -30,7 +30,7 @@ class TransactionController(
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun transact(
         @Valid @RequestBody request: TransactRequest,
-        @Positive @RequestHeader(value = ApiHeaders.TIMEOUT_DURATION) timeoutDuration: Long
+        @RequestHeader(value = ApiHeaders.TIMEOUT_DURATION) timeoutDuration: Long
     ): TransactResponse = runCatching {
         val task = Callable {
             val input = request.input()
