@@ -81,4 +81,19 @@ class TransactUseCaseImplTest {
         verify(debitPolicy, never()).execute(any())
         verify(transactionRepository, never()).create(any())
     }
+
+    @Test
+    fun `Given, when, then`() {
+        val merchantCategory = Faker.merchantCategory()
+        val input = Faker.transactUseCaseInput(merchantCategory)
+
+        assertThatThrownBy { transactUseCase.execute(input) }.isInstanceOf(AccountNotFoundException::class.java)
+
+        inOrder.verify(transactionRepository).findByExternalId(input.externalId)
+        inOrder.verify(merchantCategoryTermRepository).findAll()
+        inOrder.verify(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, merchantCategory)
+        inOrder.verifyNoMoreInteractions()
+        verify(debitPolicy, never()).execute(any())
+        verify(transactionRepository, never()).create(any())
+    }
 }

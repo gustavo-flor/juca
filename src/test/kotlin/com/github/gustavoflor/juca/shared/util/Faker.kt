@@ -10,12 +10,15 @@ import com.github.gustavoflor.juca.core.usecase.AddCreditUseCase
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.CreditRequest
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.TransactRequest
+import java.math.BigDecimal
 import java.math.RoundingMode
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
 
 object Faker {
+    fun id() = Random.nextLong(1, 99999)
+
     fun numerify(value: String): String {
         val builder = StringBuilder()
         for (index in value.indices) {
@@ -31,14 +34,14 @@ object Faker {
     fun merchantCategory() = MerchantCategory.entries.random()
 
     fun account() = Account(
-        id = Random.nextLong(1, 99999),
+        id = id(),
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now()
     )
 
     fun transaction() = Transaction(
-        id = Random.nextLong(1, 99999),
-        accountId = Random.nextLong(1, 99999),
+        id = id(),
+        accountId = id(),
         externalId = UUID.randomUUID(),
         origin = numerify("Origin [###]"),
         type = TransactionType.entries.random(),
@@ -49,8 +52,8 @@ object Faker {
     )
 
     fun wallet(merchantCategory: MerchantCategory = merchantCategory()) = Wallet(
-        id = Random.nextLong(1, 99999),
-        accountId = Random.nextLong(1, 99999),
+        id = id(),
+        accountId = id(),
         balance = money(),
         merchantCategory = merchantCategory,
         createdAt = LocalDateTime.now(),
@@ -61,11 +64,11 @@ object Faker {
 
     fun money(
         from: Double = 0.0,
-        until: Double = 9999.9
-    ) = Random.nextDouble(from, until).toBigDecimal().setScale(2, RoundingMode.HALF_UP)
+        until: Double = 9_999_999_999_999.99
+    ): BigDecimal = Random.nextDouble(from, until).toBigDecimal().setScale(2, RoundingMode.HALF_UP)
 
     fun transactRequest(merchantCategory: MerchantCategory = merchantCategory()) = TransactRequest(
-        accountId = Random.nextLong(1, 99999),
+        accountId = id(),
         amount = money(),
         mcc = mcc(merchantCategory),
         merchant = numerify("PADARIA DO ZE*##            SAO PAULO BR"),
@@ -83,17 +86,17 @@ object Faker {
     )
 
     fun creditUseCaseInput() = AddCreditUseCase.Input(
-        accountId = Random.nextLong(1, 99999),
+        accountId = id(),
         merchantCategory = merchantCategory(),
         amount = money()
     )
 
     fun transactUseCaseInput(merchantCategory: MerchantCategory = merchantCategory()) = TransactUseCase.Input(
-        accountId = Random.nextLong(1, 99999),
+        accountId = id(),
         amount = money(),
         mcc = mcc(merchantCategory),
         externalId = UUID.randomUUID(),
-        merchantName = numerify("PADARIA DO ZE*##"),
-        address = "SAO PAULO BR"
+        merchantName = numerify("PAG*##"),
+        address = "RIO DE JANEI BR"
     )
 }
