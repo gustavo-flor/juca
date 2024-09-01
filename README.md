@@ -225,7 +225,7 @@ Endpoint to visualize the statement of an account.
   ```
 #### Request Parameters
 
-| name                                | description                                                                  |
-|-------------------------------------|------------------------------------------------------------------------------|
-| id<span style="color: red">*</span> | **Int** (Query)<br/>Account identifier, it'll be used to search the wallets. |
+| name                                | description                                                                       |
+|-------------------------------------|-----------------------------------------------------------------------------------|
+| id<span style="color: red">*</span> | **Int** (Query)<br/>Account identifier, it'll be used to search the transactions. |
 
