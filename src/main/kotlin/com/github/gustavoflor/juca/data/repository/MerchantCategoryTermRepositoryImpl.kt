@@ -13,7 +13,7 @@ class MerchantCategoryTermRepositoryImpl : MerchantCategoryTermRepository {
         private val MERCHANT_CATEGORY_TERMS = mapOf(
             MEAL to listOf("EATS", "RESTAURANTE", "PADARIA"),
             FOOD to listOf("MERCADO", "SUPERMERCADO"),
-            CASH to listOf("BILHETEUNICO")
+            CASH to listOf("BILHETEUNICO", "UBER TRIP")
         )
     }
 

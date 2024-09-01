@@ -29,7 +29,7 @@ class TransactionController(
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     fun transact(
         @Valid @RequestBody request: TransactRequest,
-        @RequestHeader(value = ApiHeaders.REQUEST_DURATION) requestDuration: Long
+        @RequestHeader(value = ApiHeaders.MAX_REQUEST_DURATION) requestDuration: Long
     ): TransactResponse = runCatching {
         val task = Callable {
             val input = request.input()

@@ -45,7 +45,7 @@ object Endpoints {
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
-            .header(ApiHeaders.REQUEST_DURATION, timeoutDuration ?: "")
+            .header(ApiHeaders.MAX_REQUEST_DURATION, timeoutDuration ?: "")
             .body(request)
             .post("/v1/transactions")
             .then()
