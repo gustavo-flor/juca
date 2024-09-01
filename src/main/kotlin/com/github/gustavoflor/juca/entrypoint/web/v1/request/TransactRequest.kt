@@ -3,6 +3,7 @@ package com.github.gustavoflor.juca.entrypoint.web.v1.request
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import com.github.gustavoflor.juca.shared.validation.MCC
 import io.swagger.v3.oas.annotations.media.Schema
+import jakarta.validation.constraints.Digits
 import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
@@ -18,6 +19,7 @@ data class TransactRequest(
     val accountId: Long? = null,
     @field:NotNull
     @field:Positive
+    @field:Digits(integer = 14, fraction = 2)
     @Schema(example = "100.0")
     val amount: BigDecimal? = null,
     @field:NotNull

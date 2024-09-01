@@ -14,7 +14,6 @@ import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.never
@@ -94,7 +93,7 @@ class TransactionControllerTest : ApiTest() {
         Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("X-Request-Duration: Failed to convert value of type 'java.lang.String' to required type 'long'; For input string: \"\""))
+            .body("message", `is`("X-Max-Request-Duration: Failed to convert value of type 'java.lang.String' to required type 'long'; For input string: \"\""))
 
         verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
@@ -135,6 +134,34 @@ class TransactionControllerTest : ApiTest() {
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("amount: must not be null"))
+
+        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
+        verify(transactUseCase, never()).execute(any())
+    }
+
+    @ParameterizedTest
+    @ValueSource(floats = [0F, -1F])
+    fun `Given a negative or zero amount, when create, then should return 400 (Bad Request)`(amount: Float) {
+        val request = Faker.transactRequest().copy(amount = amount.toBigDecimal())
+
+        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body("code", `is`(INVALID_REQUEST_CODE))
+            .body("message", `is`("amount: must be greater than 0"))
+
+        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
+        verify(transactUseCase, never()).execute(any())
+    }
+
+    @ParameterizedTest
+    @ValueSource(floats = [0.001F, 100_000_000_000_000.00F])
+    fun `Given an amount out of bounds, when create, then should return 400 (Bad Request)`(amount: Float) {
+        val request = Faker.transactRequest().copy(amount = amount.toBigDecimal())
+
+        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body("code", `is`(INVALID_REQUEST_CODE))
+            .body("message", `is`("amount: numeric value out of bounds (<14 digits>.<2 digits> expected)"))
 
         verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())

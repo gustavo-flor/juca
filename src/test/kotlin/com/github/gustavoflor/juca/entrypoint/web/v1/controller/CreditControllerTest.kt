@@ -18,6 +18,7 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
+import java.util.concurrent.Callable
 
 class CreditControllerTest : ApiTest() {
     companion object {
@@ -135,6 +136,19 @@ class CreditControllerTest : ApiTest() {
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("amount: must be greater than 0"))
+
+        verify(addCreditUseCase, never()).execute(any())
+    }
+
+    @ParameterizedTest
+    @ValueSource(floats = [0.001F, 100_000_000_000_000.00F])
+    fun `Given an amount out of bounds, when create, then should return 400 (Bad Request)`(amount: Float) {
+        val request = Faker.creditRequest().copy(amount = amount.toBigDecimal())
+
+        Endpoints.CreditController.create(request)
+            .statusCode(HttpStatus.BAD_REQUEST.value())
+            .body("code", `is`(INVALID_REQUEST_CODE))
+            .body("message", `is`("amount: numeric value out of bounds (<14 digits>.<2 digits> expected)"))
 
         verify(addCreditUseCase, never()).execute(any())
     }
