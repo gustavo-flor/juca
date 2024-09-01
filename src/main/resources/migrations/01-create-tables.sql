@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS wallet(
 CREATE TABLE IF NOT EXISTS transaction(
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
     account_id BIGINT NOT NULL,
-    external_id VARCHAR NOT NULL,
+    external_id UUID NOT NULL,
     origin VARCHAR NOT NULL,
     amount DECIMAL NOT NULL,
     type VARCHAR NOT NULL,

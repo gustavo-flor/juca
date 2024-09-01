@@ -39,16 +39,19 @@ object Faker {
         updatedAt = LocalDateTime.now()
     )
 
-    fun transaction() = Transaction(
+    fun transaction() = newTransaction().copy(
         id = id(),
+        createdAt = LocalDateTime.now()
+    )
+
+    fun newTransaction() = Transaction(
         accountId = id(),
         externalId = UUID.randomUUID(),
         origin = numerify("Origin [###]"),
         type = TransactionType.entries.random(),
         amount = money(),
         result = TransactionResult.entries.random(),
-        merchantCategory = merchantCategory(),
-        createdAt = LocalDateTime.now()
+        merchantCategory = merchantCategory()
     )
 
     fun wallet(merchantCategory: MerchantCategory = merchantCategory()) = Wallet(

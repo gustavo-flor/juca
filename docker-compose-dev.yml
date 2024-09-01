@@ -14,5 +14,5 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - ./migrations:/docker-entrypoint-initdb.d
+      - ./src/main/resources/migrations:/docker-entrypoint-initdb.d
     command: ["postgres", "-c", "log_statement=ddl"]

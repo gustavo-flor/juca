@@ -18,7 +18,6 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
-import java.util.concurrent.Callable
 
 class CreditControllerTest : ApiTest() {
     companion object {
