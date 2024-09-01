@@ -9,6 +9,7 @@ val springdocVersion = "2.6.0"
 val restAssuredVersion = "5.5.0"
 val mockitoKotlinVersion = "5.4.0"
 val resilience4jVersion = "2.2.0"
+val archUnitVersion = "1.3.0"
 
 group = "com.github.gustavo-flor"
 version = "0.0.1-SNAPSHOT"
@@ -41,6 +42,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
     testImplementation("org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion")
+    testImplementation("com.tngtech.archunit:archunit-junit5:$archUnitVersion")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
