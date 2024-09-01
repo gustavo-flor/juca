@@ -13,6 +13,7 @@ import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import org.apache.logging.log4j.LogManager
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
+import java.util.UUID
 
 @UseCase
 class TransactUseCaseImpl(
@@ -35,7 +36,7 @@ class TransactUseCaseImpl(
         return TransactUseCase.Output(transaction.result)
     }
 
-    private fun findByExternalId(externalId: String): Transaction? {
+    private fun findByExternalId(externalId: UUID): Transaction? {
         return transactionRepository.findByExternalId(externalId)
     }
 

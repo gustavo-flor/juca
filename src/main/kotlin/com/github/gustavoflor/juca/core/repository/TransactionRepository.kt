@@ -1,11 +1,12 @@
 package com.github.gustavoflor.juca.core.repository
 
 import com.github.gustavoflor.juca.core.entity.Transaction
+import java.util.UUID
 
 interface TransactionRepository {
     fun findAllByAccountId(accountId: Long): List<Transaction>
 
     fun create(transaction: Transaction): Transaction
 
-    fun findByExternalId(externalId: String): Transaction?
+    fun findByExternalId(externalId: UUID): Transaction?
 }

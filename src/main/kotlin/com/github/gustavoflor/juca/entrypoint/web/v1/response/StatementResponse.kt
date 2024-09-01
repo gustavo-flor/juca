@@ -7,6 +7,7 @@ import com.github.gustavoflor.juca.core.entity.Transaction
 import io.swagger.v3.oas.annotations.media.Schema
 import java.math.BigDecimal
 import java.time.LocalDateTime
+import java.util.UUID
 
 data class StatementResponse(
     val transactions: List<TransactionDTO>
@@ -18,8 +19,7 @@ data class StatementResponse(
     }
 
     data class TransactionDTO(
-        @Schema(example = "7457e030-9e80-4418-9f31-7820f81f4959")
-        val externalId: String,
+        val externalId: UUID,
         @Schema(example = "UBER EATS - SAO PAULO BR")
         val origin: String,
         @Schema(example = "100.0")

@@ -63,7 +63,7 @@ class CreditUseCaseImplTest {
         val transaction = transactionCaptor.firstValue
         assertThat(transaction.id).isNull()
         assertThat(transaction.accountId).isEqualTo(input.accountId)
-        assertThat(transaction.externalId).isNotBlank()
+        assertThat(transaction.externalId).isNotNull()
         assertThat(transaction.origin).isEqualTo("Juca API")
         assertThat(transaction.amount).isEqualTo(input.amount)
         assertThat(transaction.type).isEqualTo(TransactionType.CREDIT)

@@ -22,7 +22,7 @@ interface AddCreditUseCase {
     ) {
         fun transaction() = Transaction(
             accountId = accountId,
-            externalId = UUID.randomUUID().toString(),
+            externalId = UUID.randomUUID(),
             amount = amount,
             origin = ORIGIN,
             type = TransactionType.CREDIT,

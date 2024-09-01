@@ -5,6 +5,7 @@ import com.github.gustavoflor.juca.data.repository.query.mapper.TransactionMappe
 import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class FindTransactionByExternalIdQuery(
@@ -18,7 +19,7 @@ class FindTransactionByExternalIdQuery(
         """
     }
 
-    fun execute(externalId: String): Transaction? {
+    fun execute(externalId: UUID): Transaction? {
         val params = mapOf("externalId" to externalId)
         return try {
             jdbcTemplate.queryForObject(SQL, params, TransactionMapper())

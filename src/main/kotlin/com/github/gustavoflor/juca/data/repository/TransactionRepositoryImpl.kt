@@ -6,6 +6,7 @@ import com.github.gustavoflor.juca.data.repository.command.CreateTransactionComm
 import com.github.gustavoflor.juca.data.repository.query.FindTransactionByExternalIdQuery
 import com.github.gustavoflor.juca.data.repository.query.FindTransactionsByAccountIdQuery
 import org.springframework.stereotype.Repository
+import java.util.UUID
 
 @Repository
 class TransactionRepositoryImpl(
@@ -21,7 +22,7 @@ class TransactionRepositoryImpl(
         return createTransactionCommand.execute(transaction)
     }
 
-    override fun findByExternalId(externalId: String): Transaction? {
+    override fun findByExternalId(externalId: UUID): Transaction? {
         return findTransactionByExternalIdQuery.execute(externalId)
     }
 }

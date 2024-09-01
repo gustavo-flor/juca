@@ -181,6 +181,17 @@ Endpoint to handle the card transaction.
 |---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
 | X-Max-Request-Duration<span style="color: red">*</span> | **Int** (Header)<br/>Max request duration (in milliseconds), a timeout exception will be thrown if it's reached. |
 
+#### Request Parameters
+
+| name                                        | description                                                                                                                                                                                                                                             |
+|---------------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| externalId<span style="color: red">*</span> | **UUID**<br/>Unique identifier of the transaction, it'll be used to check idempotency. If an error happens on the request connection, the service will return the same response for 5 minutes, after this the new requests will fail.                   |
+| accountId<span style="color: red">*</span>  | **Int**<br/>Account identifier.                                                                                                                                                                                                                         |
+| amount<span style="color: red">*</span>     | **Float**<br/>Value to be debited.                                                                                                                                                                                                                      |
+| mcc<span style="color: red">*</span>        | **String**<br/>Merchant category code, basically it's a string with exactly 4 digits (0000). It'll be used to find the right benefit. Known values:<br/>- **FOOD**: `5411` and `5412`<br/>- **MEAL**: `5811` and `5812`<br/>- **CASH**: Any other code. |
+| merchant<span style="color: red">*</span>   | **String**<br/>Merchant name with address, it's a string with exactly 40 chars, the first 25 chars should have the merchant name and the rest the address.                                                                                              |
+
+
 #### Response Properties
 
 | name | description                                                                                                                                                |

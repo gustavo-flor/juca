@@ -5,12 +5,13 @@ import com.github.gustavoflor.juca.core.TransactionResult
 import com.github.gustavoflor.juca.core.TransactionType
 import com.github.gustavoflor.juca.core.entity.Transaction
 import java.math.BigDecimal
+import java.util.UUID
 
 interface TransactUseCase {
     fun execute(input: Input): Output
 
     data class Input(
-        val externalId: String,
+        val externalId: UUID,
         val accountId: Long,
         val amount: BigDecimal,
         val mcc: String,

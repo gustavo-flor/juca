@@ -9,11 +9,11 @@ import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Positive
 import jakarta.validation.constraints.Size
 import java.math.BigDecimal
+import java.util.UUID
 
 data class TransactRequest(
-    @field:NotBlank
-    @Schema(example = "7457e030-9e80-4418-9f31-7820f81f4959")
-    val externalId: String? = null,
+    @field:NotNull
+    val externalId: UUID? = null,
     @field:NotNull
     @field:Positive
     val accountId: Long? = null,

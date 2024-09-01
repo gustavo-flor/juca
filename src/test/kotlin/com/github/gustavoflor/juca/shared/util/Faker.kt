@@ -39,7 +39,7 @@ object Faker {
     fun transaction() = Transaction(
         id = Random.nextLong(1, 99999),
         accountId = Random.nextLong(1, 99999),
-        externalId = UUID.randomUUID().toString(),
+        externalId = UUID.randomUUID(),
         origin = numerify("Origin [###]"),
         type = TransactionType.entries.random(),
         amount = money(),
@@ -69,7 +69,7 @@ object Faker {
         amount = money(),
         mcc = mcc(merchantCategory),
         merchant = numerify("PADARIA DO ZE*##            SAO PAULO BR"),
-        externalId = UUID.randomUUID().toString()
+        externalId = UUID.randomUUID()
     )
 
     fun mcc(
@@ -92,7 +92,7 @@ object Faker {
         accountId = Random.nextLong(1, 99999),
         amount = money(),
         mcc = mcc(merchantCategory),
-        externalId = UUID.randomUUID().toString(),
+        externalId = UUID.randomUUID(),
         merchantName = numerify("PADARIA DO ZE*##"),
         address = "SAO PAULO BR"
     )

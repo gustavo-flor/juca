@@ -167,16 +167,14 @@ class TransactionControllerTest : ApiTest() {
         verify(transactUseCase, never()).execute(any())
     }
 
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = ["", " "])
-    fun `Given an invalid external ID, when create, then should return 400 (Bad Request)`(externalId: String?) {
-        val request = Faker.transactRequest().copy(externalId = externalId)
+    @Test
+    fun `Given an invalid external ID, when create, then should return 400 (Bad Request)`() {
+        val request = Faker.transactRequest().copy(externalId = null)
 
         Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("externalId: must not be blank"))
+            .body("message", `is`("externalId: must not be null"))
 
         verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
