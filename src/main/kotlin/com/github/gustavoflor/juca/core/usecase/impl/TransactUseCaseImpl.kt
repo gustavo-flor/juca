@@ -11,7 +11,6 @@ import com.github.gustavoflor.juca.core.repository.TransactionRepository
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import org.apache.logging.log4j.LogManager
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
 
@@ -29,11 +28,6 @@ class TransactUseCaseImpl(
     private val log = LogManager.getLogger(javaClass)
 
     @Transactional
-    @Cacheable(
-        cacheNames = ["transaction-result-by-external-id"],
-        key = "#input.externalId.toString()",
-        sync = true
-    )
     override fun execute(input: TransactUseCase.Input): TransactUseCase.Output {
         log.info("Executing transact use case...")
         val transaction = transact(input)

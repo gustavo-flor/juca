@@ -16,8 +16,3 @@ services:
     volumes:
       - ./src/main/resources/migrations:/docker-entrypoint-initdb.d
     command: ['postgres', '-c', 'log_statement=ddl']
-  redis:
-    image: redis:7.4.0
-    restart: on-failure
-    ports:
-      - '6379:6379'

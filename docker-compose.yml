@@ -12,11 +12,8 @@ services:
       DATASOURCE_URL: jdbc:postgresql://postgres:5432/juca
       DATASOURCE_USERNAME: app-user
       DATASOURCE_PASSWORD: app-pass
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
     depends_on:
       - postgres
-      - redis
   postgres:
     image: postgres:15-alpine
     restart: on-failure
@@ -31,6 +28,3 @@ services:
       retries: 5
     volumes:
       - ./src/main/resources/migrations:/docker-entrypoint-initdb.d
-  redis:
-    image: redis:7.4.0
-    restart: on-failure
