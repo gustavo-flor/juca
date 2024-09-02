@@ -1,8 +1,8 @@
 package com.github.gustavoflor.juca.core.usecase
 
-import com.github.gustavoflor.juca.core.MerchantCategory
-import com.github.gustavoflor.juca.core.TransactionResult
-import com.github.gustavoflor.juca.core.TransactionType
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.TransactionResult
+import com.github.gustavoflor.juca.core.domain.TransactionType
 import com.github.gustavoflor.juca.core.entity.Transaction
 import com.github.gustavoflor.juca.core.entity.Wallet
 import java.math.BigDecimal

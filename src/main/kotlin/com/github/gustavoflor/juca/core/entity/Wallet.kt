@@ -1,6 +1,6 @@
 package com.github.gustavoflor.juca.core.entity
 
-import com.github.gustavoflor.juca.core.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
 import java.math.BigDecimal
 import java.time.LocalDateTime
 

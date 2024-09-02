@@ -1,6 +1,6 @@
 package com.github.gustavoflor.juca.data.repository
 
-import com.github.gustavoflor.juca.core.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.data.repository.command.CreateWalletCommand

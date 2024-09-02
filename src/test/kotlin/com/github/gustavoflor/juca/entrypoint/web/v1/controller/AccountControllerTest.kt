@@ -3,7 +3,7 @@ package com.github.gustavoflor.juca.entrypoint.web.v1.controller
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
 import com.github.gustavoflor.juca.core.usecase.CreateAccountUseCase
 import com.github.gustavoflor.juca.core.usecase.FindWalletsByAccountIdUseCase
-import com.github.gustavoflor.juca.entrypoint.ApiTest
+import com.github.gustavoflor.juca.entrypoint.EntrypointTest
 import com.github.gustavoflor.juca.entrypoint.web.v1.Endpoints
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
@@ -18,7 +18,7 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import kotlin.random.Random
 
-class AccountControllerTest : ApiTest() {
+class AccountControllerTest : EntrypointTest() {
     companion object {
         private const val RESOURCE_NOT_FOUND_CODE = "RESOURCE_NOT_FOUND"
     }

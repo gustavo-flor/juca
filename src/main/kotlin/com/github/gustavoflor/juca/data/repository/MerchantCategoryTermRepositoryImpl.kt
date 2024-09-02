@@ -1,9 +1,9 @@
 package com.github.gustavoflor.juca.data.repository
 
-import com.github.gustavoflor.juca.core.MerchantCategory
-import com.github.gustavoflor.juca.core.MerchantCategory.CASH
-import com.github.gustavoflor.juca.core.MerchantCategory.FOOD
-import com.github.gustavoflor.juca.core.MerchantCategory.MEAL
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.MerchantCategory.CASH
+import com.github.gustavoflor.juca.core.domain.MerchantCategory.FOOD
+import com.github.gustavoflor.juca.core.domain.MerchantCategory.MEAL
 import com.github.gustavoflor.juca.core.repository.MerchantCategoryTermRepository
 import org.springframework.stereotype.Repository
 

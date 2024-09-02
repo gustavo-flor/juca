@@ -1,6 +1,6 @@
 package com.github.gustavoflor.juca.data.repository.query.mapper
 
-import com.github.gustavoflor.juca.core.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.shared.util.DateTimeUtil.DATE_TIME_ISO_8601_FORMATTER
 import org.springframework.jdbc.core.RowMapper

@@ -1,7 +1,7 @@
 package com.github.gustavoflor.juca.core.usecase.impl
 
-import com.github.gustavoflor.juca.core.TransactionResult
-import com.github.gustavoflor.juca.core.TransactionType
+import com.github.gustavoflor.juca.core.domain.TransactionResult
+import com.github.gustavoflor.juca.core.domain.TransactionType
 import com.github.gustavoflor.juca.core.entity.Transaction
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException

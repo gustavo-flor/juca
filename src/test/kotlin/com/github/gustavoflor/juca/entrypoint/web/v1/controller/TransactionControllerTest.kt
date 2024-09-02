@@ -1,8 +1,8 @@
 package com.github.gustavoflor.juca.entrypoint.web.v1.controller
 
-import com.github.gustavoflor.juca.core.TransactionResult
+import com.github.gustavoflor.juca.core.domain.TransactionResult
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
-import com.github.gustavoflor.juca.entrypoint.ApiTest
+import com.github.gustavoflor.juca.entrypoint.EntrypointTest
 import com.github.gustavoflor.juca.entrypoint.web.v1.Endpoints
 import com.github.gustavoflor.juca.entrypoint.web.v1.response.TransactResponse
 import com.github.gustavoflor.juca.shared.util.Faker
@@ -10,7 +10,6 @@ import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.kotlin.any
 import org.mockito.kotlin.argumentCaptor
@@ -24,7 +23,7 @@ import org.springframework.http.HttpStatus
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 
-class TransactionControllerTest : ApiTest() {
+class TransactionControllerTest : EntrypointTest() {
     companion object {
         private const val INVALID_REQUEST_CODE = "INVALID_REQUEST"
         private const val TIMEOUT_DURATION = "60000"

@@ -1,6 +1,6 @@
 package com.github.gustavoflor.juca.entrypoint.web.v1.response
 
-import com.github.gustavoflor.juca.core.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Wallet
 import io.swagger.v3.oas.annotations.media.Schema
 import java.math.BigDecimal

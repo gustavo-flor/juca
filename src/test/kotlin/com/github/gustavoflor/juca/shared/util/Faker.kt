@@ -1,8 +1,8 @@
 package com.github.gustavoflor.juca.shared.util
 
-import com.github.gustavoflor.juca.core.MerchantCategory
-import com.github.gustavoflor.juca.core.TransactionResult
-import com.github.gustavoflor.juca.core.TransactionType
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.TransactionResult
+import com.github.gustavoflor.juca.core.domain.TransactionType
 import com.github.gustavoflor.juca.core.entity.Account
 import com.github.gustavoflor.juca.core.entity.Transaction
 import com.github.gustavoflor.juca.core.entity.Wallet

@@ -1,6 +1,6 @@
 package com.github.gustavoflor.juca.core.usecase.impl
 
-import com.github.gustavoflor.juca.core.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Transaction
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
@@ -11,9 +11,9 @@ import com.github.gustavoflor.juca.core.repository.TransactionRepository
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import org.apache.logging.log4j.LogManager
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
-import java.util.UUID
 
 @UseCase
 class TransactUseCaseImpl(
@@ -29,15 +29,15 @@ class TransactUseCaseImpl(
     private val log = LogManager.getLogger(javaClass)
 
     @Transactional
+    @Cacheable(
+        cacheNames = ["transaction-result-by-external-id"],
+        key = "#input.externalId.toString()",
+        sync = true
+    )
     override fun execute(input: TransactUseCase.Input): TransactUseCase.Output {
         log.info("Executing transact use case...")
-        val transaction = findByExternalId(input.externalId)
-            ?: transact(input)
+        val transaction = transact(input)
         return TransactUseCase.Output(transaction.result)
-    }
-
-    private fun findByExternalId(externalId: UUID): Transaction? {
-        return transactionRepository.findByExternalId(externalId)
     }
 
     private fun transact(input: TransactUseCase.Input): Transaction {

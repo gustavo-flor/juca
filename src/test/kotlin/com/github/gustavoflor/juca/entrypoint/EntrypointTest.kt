@@ -1,18 +1,12 @@
 package com.github.gustavoflor.juca.entrypoint
 
 import com.github.gustavoflor.juca.Application
-import com.github.gustavoflor.juca.core.repository.AccountRepository
-import com.github.gustavoflor.juca.core.repository.MerchantCategoryTermRepository
-import com.github.gustavoflor.juca.core.repository.TransactionRepository
-import com.github.gustavoflor.juca.core.repository.WalletRepository
 import io.restassured.RestAssured
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.springframework.boot.jdbc.init.DataSourceScriptDatabaseInitializer
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
@@ -23,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension
     classes = [Application::class]
 )
 @ExtendWith(SpringExtension::class)
-abstract class ApiTest {
+abstract class EntrypointTest {
 
     @LocalServerPort
     private lateinit var serverPort: String

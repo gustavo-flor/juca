@@ -1,11 +1,8 @@
 package com.github.gustavoflor.juca.core.entity
 
-import com.github.gustavoflor.juca.core.MerchantCategory
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 import kotlin.random.Random
 
 class WalletTest {

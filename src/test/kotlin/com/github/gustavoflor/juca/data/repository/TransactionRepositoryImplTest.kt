@@ -1,14 +1,14 @@
 package com.github.gustavoflor.juca.data.repository
 
 import com.github.gustavoflor.juca.core.repository.TransactionRepository
-import com.github.gustavoflor.juca.data.DataTest
+import com.github.gustavoflor.juca.IntegrationTest
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 
-class TransactionRepositoryImplTest : DataTest() {
+class TransactionRepositoryImplTest : IntegrationTest() {
     @Autowired
     private lateinit var transactionRepository: TransactionRepository
 
@@ -33,7 +33,7 @@ class TransactionRepositoryImplTest : DataTest() {
     }
 
     @Test
-    fun `Given a new transactions, when create, then should find all by account ID`() {
+    fun `Given new transactions, when create, then should find all by account ID`() {
         val accountId = createAccount()
         val transactions = List(5) { Faker.newTransaction().copy(accountId = accountId) }
 

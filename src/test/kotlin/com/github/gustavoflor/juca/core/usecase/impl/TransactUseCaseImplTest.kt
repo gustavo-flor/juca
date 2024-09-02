@@ -1,84 +1,86 @@
 package com.github.gustavoflor.juca.core.usecase.impl
 
-import com.github.gustavoflor.juca.core.TransactionResult
-import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
-import com.github.gustavoflor.juca.core.policy.DebitPolicy
-import com.github.gustavoflor.juca.core.repository.MerchantCategoryTermRepository
+import com.github.gustavoflor.juca.IntegrationTest
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.TransactionResult
+import com.github.gustavoflor.juca.core.entity.Wallet
+import com.github.gustavoflor.juca.core.repository.AccountRepository
 import com.github.gustavoflor.juca.core.repository.TransactionRepository
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.shared.util.Faker
-import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.BeforeEach
+import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InOrder
-import org.mockito.InjectMocks
-import org.mockito.Mock
-import org.mockito.Mockito.doReturn
-import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
-import org.mockito.kotlin.inOrder
-import org.mockito.kotlin.never
-import org.mockito.kotlin.verify
+import org.springframework.beans.factory.annotation.Autowired
+import java.math.BigDecimal
+import java.util.UUID
+import kotlin.random.Random
 
-@ExtendWith(MockitoExtension::class)
-class TransactUseCaseImplTest {
-    @Mock
+class TransactUseCaseImplTest : IntegrationTest() {
+    @Autowired
+    private lateinit var accountRepository: AccountRepository
+
+    @Autowired
     private lateinit var walletRepository: WalletRepository
 
-    @Mock
-    private lateinit var merchantCategoryTermRepository: MerchantCategoryTermRepository
-
-    @Mock
+    @Autowired
     private lateinit var transactionRepository: TransactionRepository
 
-    @Mock
-    private lateinit var debitPolicy: DebitPolicy
-
-    @InjectMocks
+    @Autowired
     private lateinit var transactUseCase: TransactUseCaseImpl
 
-    private lateinit var inOrder: InOrder
+    @Test
+    fun `Given concurrent requests with enough money, when execute, then should approve all requests`() {
+        val merchantCategory = MerchantCategory.CASH
+        val balance = Faker.money(999_999.99)
+        val account = accountRepository.create()
+        Wallet.of(account, merchantCategory).copy(balance = balance)
+            .let { walletRepository.createAll(listOf(it)) }
+        val threadCount = Random.nextInt(5, 20)
+        val amount = BigDecimal.TEN
 
-    @BeforeEach
-    fun beforeEach() {
-        if (!::inOrder.isInitialized) {
-            inOrder = inOrder(walletRepository, merchantCategoryTermRepository, transactionRepository, debitPolicy)
+        doSyncAndConcurrently(threadCount) { index ->
+            val input = Faker.transactUseCaseInput().copy(
+                accountId = account.id,
+                externalId = UUID.randomUUID(),
+                amount = amount,
+                merchantName = "TEST*$index",
+                mcc = "0000",
+            )
+            transactUseCase.execute(input)
         }
+
+        val transactions = transactionRepository.findAllByAccountId(account.id)
+        assertThat(transactions.size).isEqualTo(threadCount)
+        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, merchantCategory)
+        assertThat(wallet?.balance).isEqualTo(balance - amount * threadCount.toBigDecimal())
     }
 
     @Test
-    fun `Given an already executed external ID, when execute, then should not create a new transaction`() {
-        val transaction = Faker.transaction()
-        val input = Faker.transactUseCaseInput().copy(
-            externalId = transaction.externalId
-        )
-        doReturn(transaction).`when`(transactionRepository).findByExternalId(input.externalId)
+    fun `Given concurrent requests with limited money, when execute, then should approve valid requests and deny others`() {
+        val merchantCategory = MerchantCategory.CASH
+        val balance = BigDecimal.TEN
+        val account = accountRepository.create()
+        Wallet.of(account, merchantCategory).copy(balance = balance)
+            .let { walletRepository.createAll(listOf(it)) }
+        val threadCount = Random.nextInt(10, 20)
+        val amount = BigDecimal.ONE
+        val expectedApproves = balance.toInt()
 
-        val output = transactUseCase.execute(input)
+        doSyncAndConcurrently(threadCount) { index ->
+            val input = Faker.transactUseCaseInput().copy(
+                accountId = account.id,
+                externalId = UUID.randomUUID(),
+                amount = amount,
+                merchantName = "TEST*$index",
+                mcc = "0000",
+            )
+            transactUseCase.execute(input)
+        }
 
-        assertThat(output.result).isEqualTo(transaction.result)
-        inOrder.verify(transactionRepository).findByExternalId(input.externalId)
-        inOrder.verifyNoMoreInteractions()
-        verify(merchantCategoryTermRepository, never()).findAll()
-        verify(walletRepository, never()).findByAccountIdAndMerchantCategoryForUpdate(any(), any())
-        verify(debitPolicy, never()).execute(any())
-        verify(transactionRepository, never()).create(any())
-    }
-
-    @Test
-    fun `Given an unknown account, when execute, then should return error result`() {
-        val merchantCategory = Faker.merchantCategory()
-        val input = Faker.transactUseCaseInput(merchantCategory)
-
-        assertThatThrownBy { transactUseCase.execute(input) }.isInstanceOf(AccountNotFoundException::class.java)
-
-        inOrder.verify(transactionRepository).findByExternalId(input.externalId)
-        inOrder.verify(merchantCategoryTermRepository).findAll()
-        inOrder.verify(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, merchantCategory)
-        inOrder.verifyNoMoreInteractions()
-        verify(debitPolicy, never()).execute(any())
-        verify(transactionRepository, never()).create(any())
+        val transactions = transactionRepository.findAllByAccountId(account.id)
+        assertThat(transactions.filter { it.result == TransactionResult.APPROVED }.size).isEqualTo(expectedApproves)
+        assertThat(transactions.filter { it.result == TransactionResult.INSUFFICIENT_BALANCE }.size).isEqualTo(threadCount - expectedApproves)
+        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, merchantCategory)
+        assertThat(wallet?.balance).isZero()
     }
 }

@@ -1,4 +1,4 @@
-package com.github.gustavoflor.juca.core
+package com.github.gustavoflor.juca.core.domain
 
 enum class TransactionResult(
     val code: String,

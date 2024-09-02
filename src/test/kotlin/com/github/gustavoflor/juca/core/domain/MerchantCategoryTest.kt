@@ -1,4 +1,4 @@
-package com.github.gustavoflor.juca.core
+package com.github.gustavoflor.juca.core.domain
 
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.AssertionsForClassTypes.assertThat

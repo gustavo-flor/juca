@@ -1,8 +1,8 @@
 package com.github.gustavoflor.juca.core.entity
 
-import com.github.gustavoflor.juca.core.MerchantCategory
-import com.github.gustavoflor.juca.core.TransactionResult
-import com.github.gustavoflor.juca.core.TransactionType
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.TransactionResult
+import com.github.gustavoflor.juca.core.domain.TransactionType
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID

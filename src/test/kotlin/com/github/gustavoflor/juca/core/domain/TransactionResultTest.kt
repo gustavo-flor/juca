@@ -1,4 +1,4 @@
-package com.github.gustavoflor.juca.core
+package com.github.gustavoflor.juca.core.domain
 
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.Test

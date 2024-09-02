@@ -1,6 +1,6 @@
 package com.github.gustavoflor.juca.data.repository.query
 
-import com.github.gustavoflor.juca.core.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.data.repository.query.mapper.WalletMapper
 import org.springframework.dao.EmptyResultDataAccessException

@@ -1,6 +1,6 @@
 package com.github.gustavoflor.juca.core.policy
 
-import com.github.gustavoflor.juca.core.TransactionResult
+import com.github.gustavoflor.juca.core.domain.TransactionResult
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.shared.util.BigDecimalUtil.positiveOrNull
 import java.math.BigDecimal

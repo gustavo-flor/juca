@@ -2,7 +2,7 @@ package com.github.gustavoflor.juca.entrypoint.web.v1.controller
 
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
 import com.github.gustavoflor.juca.core.usecase.AddCreditUseCase
-import com.github.gustavoflor.juca.entrypoint.ApiTest
+import com.github.gustavoflor.juca.entrypoint.EntrypointTest
 import com.github.gustavoflor.juca.entrypoint.web.v1.Endpoints
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
@@ -19,7 +19,7 @@ import org.mockito.kotlin.verify
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 
-class CreditControllerTest : ApiTest() {
+class CreditControllerTest : EntrypointTest() {
     companion object {
         private const val RESOURCE_NOT_FOUND_CODE = "RESOURCE_NOT_FOUND"
         private const val INVALID_REQUEST_CODE = "INVALID_REQUEST"

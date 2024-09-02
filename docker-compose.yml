@@ -6,12 +6,14 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
-      SPRING_PROFILES_ACTIVE: "prod"
+      SPRING_PROFILES_ACTIVE: prod
       DATASOURCE_URL: jdbc:postgresql://postgres:5432/juca
       DATASOURCE_USERNAME: app-user
       DATASOURCE_PASSWORD: app-pass
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
   postgres:
     image: postgres:15-alpine
     restart: on-failure
@@ -20,11 +22,12 @@ services:
       POSTGRES_USER: app-user
       POSTGRES_PASSWORD: app-pass
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
-    ports:
-      - '5432:5432'
     volumes:
       - ./src/main/resources/migrations:/docker-entrypoint-initdb.d
+  redis:
+    image: redis:7.4.0
+    restart: on-failure

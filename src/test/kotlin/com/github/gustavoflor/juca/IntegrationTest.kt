@@ -1,11 +1,13 @@
-package com.github.gustavoflor.juca.data
+package com.github.gustavoflor.juca
 
-import com.github.gustavoflor.juca.Application
+import com.github.gustavoflor.juca.container.ContainerConfig
+import com.github.gustavoflor.juca.container.RedisContainer
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.support.GeneratedKeyHolder
@@ -15,44 +17,18 @@ import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.junit.jupiter.Testcontainers
+import java.util.concurrent.CountDownLatch
 
 @ActiveProfiles("test")
+@Testcontainers
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.NONE,
     classes = [Application::class]
 )
 @ExtendWith(SpringExtension::class)
-abstract class DataTest {
-    companion object {
-        private const val DATABASE_NAME = "juca"
-        private const val MIGRATIONS_HOST_PATH = "./src/main/resources/migrations"
-        private const val INIT_DB_ENTRYPOINT_CONTAINER_PATH = "/docker-entrypoint-initdb.d"
-
-        private val postgresContainer = PostgreSQLContainer("postgres:15-alpine")
-            .withDatabaseName(DATABASE_NAME)
-            .withFileSystemBind(MIGRATIONS_HOST_PATH, INIT_DB_ENTRYPOINT_CONTAINER_PATH, BindMode.READ_ONLY)
-
-        @BeforeAll
-        @JvmStatic
-        fun startContainers() {
-            postgresContainer.start()
-        }
-
-        @AfterAll
-        @JvmStatic
-        fun stopContainers() {
-            postgresContainer.stop()
-        }
-
-        @DynamicPropertySource
-        @JvmStatic
-        fun registerContainers(registry: DynamicPropertyRegistry) {
-            registry.add("spring.datasource.url", postgresContainer::getJdbcUrl)
-            registry.add("spring.datasource.username", postgresContainer::getUsername)
-            registry.add("spring.datasource.password", postgresContainer::getPassword)
-        }
-    }
-
+@Import(ContainerConfig::class)
+abstract class IntegrationTest {
     @Autowired
     private lateinit var jdbcTemplate: NamedParameterJdbcTemplate
 
@@ -62,5 +38,24 @@ abstract class DataTest {
         val params = mapOf<String, Any?>()
         jdbcTemplate.update(sql, MapSqlParameterSource(params), keyHolder, arrayOf("id"))
         return keyHolder.keys?.get("id") as Long
+    }
+
+    protected fun doSyncAndConcurrently(threadCount: Int, operation: (index: Int) -> Unit) {
+        val startLatch = CountDownLatch(1)
+        val endLatch = CountDownLatch(threadCount)
+        for (index in 0 until threadCount) {
+            Thread {
+                try {
+                    startLatch.await()
+                    operation(index)
+                } catch (e: Exception) {
+                    System.err.printf("Error while executing operation on index = [%s]: %s%n", index, e.message)
+                } finally {
+                    endLatch.countDown()
+                }
+            }.start()
+        }
+        startLatch.countDown()
+        endLatch.await()
     }
 }
