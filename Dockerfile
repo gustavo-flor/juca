@@ -1,5 +1,7 @@
 FROM gradle:jdk21 AS build
 
+WORKDIR /app
+
 COPY gradlew gradlew
 COPY gradle gradle
 COPY build.gradle.kts build.gradle.kts
@@ -11,7 +13,7 @@ RUN ./gradlew clean build -x test
 
 FROM openjdk:21-jdk-slim
 
-COPY --from=build /build/libs/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 

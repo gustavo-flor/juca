@@ -14,6 +14,9 @@ services:
       DATASOURCE_PASSWORD: app-pass
       REDIS_HOST: redis
       REDIS_PORT: 6379
+    depends_on:
+      - postgres
+      - redis
   postgres:
     image: postgres:15-alpine
     restart: on-failure

@@ -12,7 +12,7 @@ A monolith service referencing [Caju](https://caju.com.br), to put in practice "
 
 ### Running
 
-- Run docker compose:
+- Run docker compose (`8080` port should be available):
 
 ```shell
 docker compose up -d --build

@@ -22,7 +22,7 @@ import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.verify
 
 @ExtendWith(MockitoExtension::class)
-class CreditUseCaseImplTest {
+class AddCreditUseCaseImplTest {
     @Mock
     private lateinit var walletRepository: WalletRepository
 
