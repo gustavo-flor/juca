@@ -10,12 +10,24 @@ import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.shared.util.Faker
 import org.assertj.core.api.AssertionsForClassTypes.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.beans.factory.annotation.Autowired
 import java.math.BigDecimal
 import java.util.UUID
 import kotlin.random.Random
 
 class TransactUseCaseImplTest : IntegrationTest() {
+    companion object {
+        @JvmStatic
+        fun merchantTermsByCategoryArgs() = listOf(
+            Arguments.of(listOf("EATS", "RESTAURANTE", "PADARIA"), MerchantCategory.MEAL),
+            Arguments.of(listOf("MERCADO", "SUPERMERCADO"), MerchantCategory.FOOD),
+            Arguments.of(listOf("BILHETEUNICO", "UBER TRIP"), MerchantCategory.CASH)
+        )
+    }
+
     @Autowired
     private lateinit var accountRepository: AccountRepository
 
@@ -27,6 +39,97 @@ class TransactUseCaseImplTest : IntegrationTest() {
 
     @Autowired
     private lateinit var transactUseCase: TransactUseCaseImpl
+
+    @ParameterizedTest
+    @MethodSource("merchantTermsByCategoryArgs")
+    fun `Given merchant terms, when transact, then should execute with success`(terms: List<String>, merchantCategory: MerchantCategory) {
+        terms.forEach { term ->
+            val balance = Faker.money(999_999.99)
+            val account = accountRepository.create()
+            val mcc = Faker.merchantCategory(listOf(merchantCategory), true).let { Faker.mcc(it) }
+            Wallet.of(account, merchantCategory).copy(balance = balance)
+                .let { walletRepository.createAll(listOf(it)) }
+            val input = Faker.transactUseCaseInput().copy(
+                accountId = account.id,
+                merchantName = "PICPAY*$term",
+                mcc = mcc
+            )
+
+            transactUseCase.execute(input)
+
+            val transactions = transactionRepository.findAllByAccountId(account.id)
+            assertThat(transactions.size).isEqualTo(1)
+            transactions[0].let {
+                assertThat(it.amount).isEqualTo(input.amount)
+                assertThat(it.accountId).isEqualTo(input.accountId)
+                assertThat(it.merchantCategory).isEqualTo(merchantCategory)
+                assertThat(it.externalId).isEqualTo(input.externalId)
+                assertThat(it.origin).isEqualTo("${input.merchantName} - ${input.address}")
+                assertThat(it.result).isEqualTo(TransactionResult.APPROVED)
+            }
+            val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, merchantCategory)
+            assertThat(wallet?.balance).isEqualTo(balance - input.amount)
+        }
+    }
+
+    @Test
+    fun `Given a transaction with no money available, when transact, then should execute with success`() {
+        val balance = BigDecimal.ZERO
+        val account = accountRepository.create()
+        val merchantCategory = Faker.merchantCategory()
+        MerchantCategory.entries.map { Wallet.of(account, it).copy(balance = balance) }
+            .let { walletRepository.createAll(it) }
+        val input = Faker.transactUseCaseInput().copy(
+            accountId = account.id,
+            mcc = Faker.mcc(merchantCategory)
+        )
+
+        transactUseCase.execute(input)
+
+        val transactions = transactionRepository.findAllByAccountId(account.id)
+        assertThat(transactions.size).isEqualTo(1)
+        transactions[0].let {
+            assertThat(it.amount).isEqualTo(input.amount)
+            assertThat(it.accountId).isEqualTo(input.accountId)
+            assertThat(it.merchantCategory).isEqualTo(merchantCategory)
+            assertThat(it.externalId).isEqualTo(input.externalId)
+            assertThat(it.origin).isEqualTo("${input.merchantName} - ${input.address}")
+            assertThat(it.result).isEqualTo(TransactionResult.INSUFFICIENT_BALANCE)
+        }
+        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, merchantCategory)
+        assertThat(wallet?.balance).isEqualTo(balance)
+    }
+
+    @Test
+    fun `Given a transaction with money available only on fallback, when transact, then should execute with success`() {
+        val fallbackCategory = MerchantCategory.CASH
+        val account = accountRepository.create()
+        val balance = Faker.money(999_999.99)
+        val fallbackWallet = Wallet.of(account, fallbackCategory).copy(balance = balance)
+        MerchantCategory.entries
+            .filter { it != fallbackCategory }
+            .map { Wallet.of(account, it).copy(balance = BigDecimal.ZERO) }
+            .let { walletRepository.createAll(it + listOf(fallbackWallet)) }
+        val input = Faker.transactUseCaseInput().copy(
+            accountId = account.id,
+            merchantName = "PADARIA DO ZE",
+            mcc = Faker.mcc()
+        )
+
+        transactUseCase.execute(input)
+
+        val transactions = transactionRepository.findAllByAccountId(account.id)
+        assertThat(transactions.size).isEqualTo(1)
+        transactions[0].let {
+            assertThat(it.amount).isEqualTo(input.amount)
+            assertThat(it.accountId).isEqualTo(input.accountId)
+            assertThat(it.externalId).isEqualTo(input.externalId)
+            assertThat(it.origin).isEqualTo("${input.merchantName} - ${input.address}")
+            assertThat(it.result).isEqualTo(TransactionResult.APPROVED)
+        }
+        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, fallbackCategory)
+        assertThat(wallet?.balance).isEqualTo(balance - input.amount)
+    }
 
     @Test
     fun `Given concurrent requests with enough money, when execute, then should approve all requests`() {

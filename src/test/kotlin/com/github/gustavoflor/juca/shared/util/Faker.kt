@@ -31,8 +31,6 @@ object Faker {
         return builder.toString()
     }
 
-    fun merchantCategory() = MerchantCategory.entries.random()
-
     fun account() = Account(
         id = id(),
         createdAt = LocalDateTime.now(),
@@ -70,6 +68,16 @@ object Faker {
         until: Double = 9_999_999_999_999.99
     ): BigDecimal = Random.nextDouble(from, until).toBigDecimal().setScale(2, RoundingMode.HALF_UP)
 
+    fun merchantCategory(
+        values: Collection<MerchantCategory> = MerchantCategory.entries,
+        exclude: Boolean = false
+    ): MerchantCategory {
+        if (exclude) {
+            return MerchantCategory.entries.filter { !values.contains(it) }.random()
+        }
+        return values.random()
+    }
+
     fun transactRequest(merchantCategory: MerchantCategory = merchantCategory()) = TransactRequest(
         accountId = id(),
         amount = money(),
@@ -96,7 +104,7 @@ object Faker {
 
     fun transactUseCaseInput(merchantCategory: MerchantCategory = merchantCategory()) = TransactUseCase.Input(
         accountId = id(),
-        amount = money(),
+        amount = money(9.99, 1999.99),
         mcc = mcc(merchantCategory),
         externalId = UUID.randomUUID(),
         merchantName = numerify("PAG*##"),

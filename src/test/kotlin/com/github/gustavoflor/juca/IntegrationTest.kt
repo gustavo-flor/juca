@@ -1,6 +1,7 @@
 package com.github.gustavoflor.juca
 
 import com.github.gustavoflor.juca.container.ContainerConfig
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -31,6 +32,17 @@ abstract class IntegrationTest {
         val params = mapOf<String, Any?>()
         jdbcTemplate.update(sql, MapSqlParameterSource(params), keyHolder, arrayOf("id"))
         return keyHolder.keys?.get("id") as Long
+    }
+
+    @AfterEach
+    fun clearDatabase() {
+        val sql = """
+            DELETE FROM transaction;
+            DELETE FROM wallet;
+            DELETE FROM account;
+        """
+        val params = mapOf<String, Any?>()
+        jdbcTemplate.update(sql, MapSqlParameterSource(params))
     }
 
     protected fun doSyncAndConcurrently(threadCount: Int, operation: (index: Int) -> Unit) {
