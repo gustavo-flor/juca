@@ -4,6 +4,7 @@ import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import com.github.gustavoflor.juca.entrypoint.web.v1.ApiHeaders
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.TransactRequest
 import com.github.gustavoflor.juca.entrypoint.web.v1.response.TransactResponse
+import com.github.gustavoflor.juca.shared.log.LogContextCloseable.Companion.addAccountId
 import com.github.gustavoflor.juca.shared.util.TimeoutUtil
 import jakarta.validation.Valid
 import org.apache.logging.log4j.LogManager
@@ -30,17 +31,19 @@ class TransactionController(
     fun transact(
         @Valid @RequestBody request: TransactRequest,
         @RequestHeader(value = ApiHeaders.MAX_REQUEST_DURATION) requestDuration: Long
-    ): TransactResponse = runCatching {
-        val task = Callable {
-            val input = request.input()
-            val output = transactUseCase.execute(input)
-            TransactResponse(output.result.code)
+    ): TransactResponse = addAccountId(request.accountId).addExternalId(request.externalId).track().use {
+        try {
+            val task = Callable {
+                val input = request.input()
+                val output = transactUseCase.execute(input)
+                TransactResponse(output.result.code)
+            }
+            return TimeoutUtil.runUntil(requestDuration) {
+                transactionExecutorService.submit(task)
+            }
+        } catch (e: Exception) {
+            log.error("Something went wrong on transact use case execution [{}]", e.message, e)
+            return TransactResponse.error()
         }
-        return TimeoutUtil.runUntil(requestDuration) {
-            transactionExecutorService.submit(task)
-        }
-    }.getOrElse {
-        log.error("Something went wrong on transact use case execution [{}]", it.message, it)
-        return TransactResponse.error()
     }
 }

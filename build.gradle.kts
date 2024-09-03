@@ -10,6 +10,7 @@ val restAssuredVersion = "5.5.0"
 val mockitoKotlinVersion = "5.4.0"
 val resilience4jVersion = "2.2.0"
 val archUnitVersion = "1.3.0"
+val logstashLogbackEncoderVersion = "8.0"
 
 group = "com.github.gustavo-flor"
 version = "0.0.1-SNAPSHOT"
@@ -33,6 +34,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:$springdocVersion")
     implementation("io.github.resilience4j:resilience4j-spring-boot3:$resilience4jVersion")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logstashLogbackEncoderVersion")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")

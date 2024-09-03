@@ -5,6 +5,7 @@ import com.github.gustavoflor.juca.core.usecase.FindWalletsByAccountIdUseCase
 import com.github.gustavoflor.juca.core.usecase.GetStatementUseCase
 import com.github.gustavoflor.juca.entrypoint.web.v1.response.AccountResponse
 import com.github.gustavoflor.juca.entrypoint.web.v1.response.StatementResponse
+import com.github.gustavoflor.juca.shared.log.LogContextCloseable.Companion.addAccountId
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.bind.annotation.GetMapping
@@ -22,7 +23,7 @@ class AccountController(
     private val getStatementUseCase: GetStatementUseCase
 ) {
     @GetMapping(path = ["/{id}"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun findById(@PathVariable id: Long): AccountResponse {
+    fun findById(@PathVariable id: Long): AccountResponse = addAccountId(id).track().use {
         val input = FindWalletsByAccountIdUseCase.Input(id)
         val output = findWalletsByAccountIdUseCase.execute(input)
         return AccountResponse.of(id, output.wallets)
@@ -36,7 +37,7 @@ class AccountController(
     }
 
     @GetMapping(path = ["/{id}/statement"], produces = [MediaType.APPLICATION_JSON_VALUE])
-    fun getStatement(@PathVariable id: Long): StatementResponse {
+    fun getStatement(@PathVariable id: Long): StatementResponse = addAccountId(id).track().use {
         val input = GetStatementUseCase.Input(id)
         val output = getStatementUseCase.execute(input)
         return StatementResponse.of(output.transactions)
