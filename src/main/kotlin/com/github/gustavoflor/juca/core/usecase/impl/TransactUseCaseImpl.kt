@@ -25,26 +25,27 @@ class TransactUseCaseImpl(
     @Transactional
     override fun execute(input: TransactUseCase.Input): TransactUseCase.Output {
         log.info("Executing transact use case...")
-        val transaction = transact(input)
-        return TransactUseCase.Output(transaction.result)
+        val result = transact(input)
+        return TransactUseCase.Output(result)
     }
 
-    private fun transact(input: TransactUseCase.Input): Transaction {
+    private fun transact(input: TransactUseCase.Input): TransactionResult {
         val merchantCategory = getMerchantCategory(input)
-        val result = debit(merchantCategory, input)
-        return input.transaction(merchantCategory, result)
-            .let { transactionRepository.create(it) }
+        val transactions = debit(merchantCategory, input)
+        return transactionRepository.createAll(transactions).first().result
     }
 
-    private fun debit(merchantCategory: MerchantCategory, input: TransactUseCase.Input): TransactionResult {
+    private fun debit(merchantCategory: MerchantCategory, input: TransactUseCase.Input): List<Transaction> {
         val amount = input.amount
         val wallet = getWallet(input.accountId)
         val totalBalance = merchantCategory.getTotalBalance(wallet)
         if (amount > totalBalance) {
-            return TransactionResult.INSUFFICIENT_BALANCE
+            return listOf(input.transaction(merchantCategory, TransactionResult.INSUFFICIENT_BALANCE))
         }
-        merchantCategory.debit(amount, wallet).let { walletRepository.update(it) }
-        return TransactionResult.APPROVED
+        return merchantCategory.debit(amount, wallet)
+            .let { walletRepository.update(it) }
+            .let { MerchantCategory.getDirtyCategories(wallet, it) }
+            .map { input.transaction(it, TransactionResult.APPROVED) }
     }
 
     private fun getWallet(accountId: Long): Wallet {

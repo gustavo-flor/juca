@@ -22,6 +22,10 @@ class TransactionRepositoryImpl(
         return createTransactionCommand.execute(transaction)
     }
 
+    override fun createAll(transactions: List<Transaction>): List<Transaction> {
+        return createTransactionCommand.executeAll(transactions)
+    }
+
     override fun findByExternalId(externalId: UUID): Transaction? {
         return findTransactionByExternalIdQuery.execute(externalId)
     }

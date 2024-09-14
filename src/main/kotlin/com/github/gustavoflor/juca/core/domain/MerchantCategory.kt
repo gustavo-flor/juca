@@ -27,10 +27,16 @@ enum class MerchantCategory(
     private val fallback: MerchantCategory? by lazy(fallbackSupplier)
 
     companion object {
-        fun getByCode(code: String) = MerchantCategory.entries.firstOrNull() { it.codes.contains(code) } ?: CASH
+        fun getByCode(code: String) = entries.firstOrNull() { it.codes.contains(code) } ?: CASH
+
+        fun getDirtyCategories(wallet: Wallet, otherWallet: Wallet): List<MerchantCategory> {
+            return entries.filter { it.getBalance(wallet) != it.getBalance(otherWallet) }
+        }
     }
 
     abstract fun getBalance(wallet: Wallet): BigDecimal
+
+    abstract fun credit(amount: BigDecimal, wallet: Wallet): Wallet
 
     fun getTotalBalance(wallet: Wallet) = getBalance(wallet) + (fallback?.getBalance(wallet) ?: BigDecimal.ZERO)
 
@@ -44,6 +50,4 @@ enum class MerchantCategory(
         return credit(categoryAmount.negate(), wallet)
             .let { fallback?.credit(fallbackAmount.negate(), it) ?: it }
     }
-
-    abstract fun credit(amount: BigDecimal, wallet: Wallet): Wallet
 }

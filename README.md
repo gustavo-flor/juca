@@ -20,6 +20,12 @@ docker compose up -d --build
 
 - That's it! Your application is available on [localhost:8080/api](http://localhost:8080/api).
 
+### Development
+
+1. Run docker `docker compose -f docker-compose-dev.yml up -d` to up all service dependencies
+2. Run `./gradlew build` to build the project
+3. Run `gradlew bootRun --args='--spring.profiles.active=dev'` to start the API
+
 ## API Docs
 
 - [OpenAPI](http://localhost:8080/api/v3/api-docs)

@@ -30,5 +30,5 @@ CREATE TABLE IF NOT EXISTS transaction(
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id),
     CONSTRAINT fk_account_transaction_account_id FOREIGN KEY (account_id) REFERENCES account(id),
-    UNIQUE(external_id)
+    UNIQUE(external_id, merchant_category)
 );

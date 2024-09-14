@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Component
-import java.math.BigDecimal
 import java.sql.Timestamp
 
 @Component
@@ -15,10 +14,6 @@ class CreateWalletCommand(
     companion object {
         private val KEYS = arrayOf(
             "id",
-            "account_id",
-            "food_balance",
-            "meal_balance",
-            "cash_balance",
             "created_at",
             "updated_at"
         )
@@ -38,12 +33,8 @@ class CreateWalletCommand(
         val keyHolder = GeneratedKeyHolder()
         val params = getParams(wallet)
         jdbcTemplate.update(SQL, params, keyHolder, KEYS)
-        return Wallet(
+        return wallet.copy(
             id = keyHolder.keys!!["id"] as Long,
-            accountId = keyHolder.keys!!["account_id"] as Long,
-            foodBalance = keyHolder.keys!!["food_balance"] as BigDecimal,
-            mealBalance = keyHolder.keys!!["meal_balance"] as BigDecimal,
-            cashBalance = keyHolder.keys!!["cash_balance"] as BigDecimal,
             createdAt = keyHolder.keys!!["created_at"].let { it as Timestamp }.toLocalDateTime(),
             updatedAt = keyHolder.keys!!["updated_at"].let { it as Timestamp }.toLocalDateTime()
         )

@@ -8,5 +8,7 @@ interface TransactionRepository {
 
     fun create(transaction: Transaction): Transaction
 
+    fun createAll(transactions: List<Transaction>): List<Transaction>
+
     fun findByExternalId(externalId: UUID): Transaction?
 }
