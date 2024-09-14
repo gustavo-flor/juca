@@ -40,12 +40,12 @@ class TransactUseCaseImpl(
         val wallet = getWallet(input.accountId)
         val totalBalance = merchantCategory.getTotalBalance(wallet)
         if (amount > totalBalance) {
-            return listOf(input.transaction(merchantCategory, TransactionResult.INSUFFICIENT_BALANCE))
+            return listOf(input.transaction(input.amount, merchantCategory, TransactionResult.INSUFFICIENT_BALANCE))
         }
         return merchantCategory.debit(amount, wallet)
             .let { walletRepository.update(it) }
-            .let { MerchantCategory.getDirtyCategories(wallet, it) }
-            .map { input.transaction(it, TransactionResult.APPROVED) }
+            .let { MerchantCategory.getDelta(wallet, it) }
+            .map { input.transaction(it.value, it.key, TransactionResult.APPROVED) }
     }
 
     private fun getWallet(accountId: Long): Wallet {

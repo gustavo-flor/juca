@@ -18,7 +18,11 @@ interface TransactUseCase {
         val merchantName: String,
         val address: String
     ) {
-        fun transaction(merchantCategory: MerchantCategory, result: TransactionResult) = Transaction(
+        fun transaction(
+            amount: BigDecimal,
+            merchantCategory: MerchantCategory,
+            result: TransactionResult
+        ) = Transaction(
             accountId = accountId,
             externalId = externalId,
             amount = amount,

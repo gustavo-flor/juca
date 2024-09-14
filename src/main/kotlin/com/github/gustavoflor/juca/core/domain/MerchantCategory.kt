@@ -29,8 +29,10 @@ enum class MerchantCategory(
     companion object {
         fun getByCode(code: String) = entries.firstOrNull() { it.codes.contains(code) } ?: CASH
 
-        fun getDirtyCategories(wallet: Wallet, otherWallet: Wallet): List<MerchantCategory> {
-            return entries.filter { it.getBalance(wallet) != it.getBalance(otherWallet) }
+        fun getDelta(wallet: Wallet, otherWallet: Wallet): Map<MerchantCategory, BigDecimal> {
+            return entries
+                .associateWith { it.getBalance(wallet) - it.getBalance(otherWallet) }
+                .filterValues { it != BigDecimal.ZERO }
         }
     }
 

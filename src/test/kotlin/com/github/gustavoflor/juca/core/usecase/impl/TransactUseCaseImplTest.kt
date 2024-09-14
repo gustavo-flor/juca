@@ -102,6 +102,46 @@ class TransactUseCaseImplTest : IntegrationTest() {
     }
 
     @Test
+    fun `Given a transaction with partial funds, when transact, then should execute with success`() {
+        val account = accountRepository.create()
+        val merchantCategory = MerchantCategory.FOOD
+        val fallbackCategory = MerchantCategory.CASH
+        val wallet = Wallet.of(account)
+            .let { merchantCategory.credit(BigDecimal.valueOf(50L), it) }
+            .let { fallbackCategory.credit(BigDecimal.valueOf(100L), it) }
+            .let { walletRepository.create(it) }
+        val input = Faker.transactUseCaseInput().copy(
+            accountId = account.id,
+            mcc = Faker.mcc(merchantCategory),
+            amount = BigDecimal.valueOf(130L)
+        )
+
+        transactUseCase.execute(input)
+
+        val transactions = transactionRepository.findAllByAccountId(account.id)
+        assertThat(transactions.size).isEqualTo(2)
+        transactions[0].let {
+            assertThat(it.amount).isEqualTo(wallet.foodBalance)
+            assertThat(it.accountId).isEqualTo(input.accountId)
+            assertThat(it.merchantCategory).isEqualTo(merchantCategory)
+            assertThat(it.externalId).isEqualTo(input.externalId)
+            assertThat(it.origin).isEqualTo("${input.merchantName} - ${input.address}")
+            assertThat(it.result).isEqualTo(TransactionResult.APPROVED)
+        }
+        transactions[1].let {
+            assertThat(it.amount).isEqualTo(input.amount - wallet.foodBalance)
+            assertThat(it.accountId).isEqualTo(input.accountId)
+            assertThat(it.merchantCategory).isEqualTo(fallbackCategory)
+            assertThat(it.externalId).isEqualTo(input.externalId)
+            assertThat(it.origin).isEqualTo("${input.merchantName} - ${input.address}")
+            assertThat(it.result).isEqualTo(TransactionResult.APPROVED)
+        }
+        val updatedWallet = walletRepository.findByAccountIdForUpdate(account.id)
+        assertThat(updatedWallet?.let { merchantCategory.getBalance(it) }).isZero()
+        assertThat(updatedWallet?.let { fallbackCategory.getBalance(it) }).isEqualTo(BigDecimal.valueOf(20L))
+    }
+
+    @Test
     fun `Given a transaction with money available only on fallback, when transact, then should execute with success`() {
         val fallbackCategory = MerchantCategory.CASH
         val account = accountRepository.create()
