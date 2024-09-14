@@ -2,7 +2,7 @@ package com.github.gustavoflor.juca.entrypoint.web.v1.controller
 
 import com.github.gustavoflor.juca.core.usecase.AddCreditUseCase
 import com.github.gustavoflor.juca.entrypoint.web.v1.request.CreditRequest
-import com.github.gustavoflor.juca.entrypoint.web.v1.response.CreditResponse
+import com.github.gustavoflor.juca.entrypoint.web.v1.response.AccountResponse
 import com.github.gustavoflor.juca.shared.log.LogContextCloseable.Companion.addAccountId
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
@@ -20,9 +20,9 @@ class CreditController(
 ) {
     @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE], produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
-    fun create(@Valid @RequestBody request: CreditRequest): CreditResponse = addAccountId(request.accountId).track().use {
+    fun create(@Valid @RequestBody request: CreditRequest): AccountResponse = addAccountId(request.accountId).track().use {
         val input = request.input()
         val output = addCreditUseCase.execute(input)
-        return CreditResponse(output.wallet.balance)
+        return AccountResponse.of(input.accountId, output.wallet)
     }
 }

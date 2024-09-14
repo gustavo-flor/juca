@@ -41,11 +41,10 @@ object Endpoints {
     }
 
     object TransactionController {
-        fun transact(request: TransactRequest, timeoutDuration: String? = null): ValidatableResponse = RestAssured.given()
+        fun transact(request: TransactRequest): ValidatableResponse = RestAssured.given()
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .contentType(ContentType.JSON)
             .accept(ContentType.JSON)
-            .header(ApiHeaders.MAX_REQUEST_DURATION, timeoutDuration ?: "")
             .body(request)
             .post("/v1/transactions")
             .then()

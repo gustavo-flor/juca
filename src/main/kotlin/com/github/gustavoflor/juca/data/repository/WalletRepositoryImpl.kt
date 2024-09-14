@@ -1,31 +1,30 @@
 package com.github.gustavoflor.juca.data.repository
 
-import com.github.gustavoflor.juca.core.domain.MerchantCategory
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.data.repository.command.CreateWalletCommand
 import com.github.gustavoflor.juca.data.repository.command.UpdateWalletCommand
-import com.github.gustavoflor.juca.data.repository.query.FindWalletByAccountIdAndMerchantCategoryForUpdateQuery
-import com.github.gustavoflor.juca.data.repository.query.FindWalletsByAccountIdQuery
+import com.github.gustavoflor.juca.data.repository.query.FindWalletByAccountIdForUpdateQuery
+import com.github.gustavoflor.juca.data.repository.query.FindWalletByAccountIdQuery
 import org.springframework.stereotype.Repository
 
 @Repository
 class WalletRepositoryImpl(
-    private val findWalletsByAccountIdQuery: FindWalletsByAccountIdQuery,
-    private val findWalletsByAccountIdAndMerchantCategoryForUpdateQuery: FindWalletByAccountIdAndMerchantCategoryForUpdateQuery,
+    private val findWalletByAccountIdQuery: FindWalletByAccountIdQuery,
+    private val findWalletByAccountIdForUpdateQuery: FindWalletByAccountIdForUpdateQuery,
     private val createWalletCommand: CreateWalletCommand,
     private val updateWalletCommand: UpdateWalletCommand
 ) : WalletRepository {
-    override fun createAll(wallets: List<Wallet>): List<Wallet> {
-        return createWalletCommand.executeAll(wallets)
+    override fun create(wallet: Wallet): Wallet {
+        return createWalletCommand.execute(wallet)
     }
 
-    override fun findByAccountIdAndMerchantCategoryForUpdate(accountId: Long, merchantCategory: MerchantCategory): Wallet? {
-        return findWalletsByAccountIdAndMerchantCategoryForUpdateQuery.execute(accountId, merchantCategory)
+    override fun findByAccountIdForUpdate(accountId: Long): Wallet? {
+        return findWalletByAccountIdForUpdateQuery.execute(accountId)
     }
 
-    override fun findByAccountId(accountId: Long): List<Wallet> {
-        return findWalletsByAccountIdQuery.execute(accountId)
+    override fun findByAccountId(accountId: Long): Wallet? {
+        return findWalletByAccountIdQuery.execute(accountId)
     }
 
     override fun update(wallet: Wallet): Wallet {

@@ -10,6 +10,6 @@ interface FindWalletsByAccountIdUseCase {
     )
 
     data class Output(
-        val wallets: List<Wallet>
+        val wallet: Wallet
     )
 }

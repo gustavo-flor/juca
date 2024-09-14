@@ -26,14 +26,10 @@ import java.util.concurrent.ExecutorService
 class TransactionControllerTest : EntrypointTest() {
     companion object {
         private const val INVALID_REQUEST_CODE = "INVALID_REQUEST"
-        private const val TIMEOUT_DURATION = "60000"
     }
 
     @MockBean
     private lateinit var transactUseCase: TransactUseCase
-
-    @SpyBean(name = "transactionExecutorService")
-    private lateinit var transactionExecutorService: ExecutorService
 
     @Test
     fun `Given a request, when transact, then should return 200 (Ok)`() {
@@ -42,12 +38,11 @@ class TransactionControllerTest : EntrypointTest() {
         doReturn(TransactUseCase.Output(result)).`when`(transactUseCase).execute(any())
         val request = Faker.transactRequest(merchantCategory)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.OK.value())
             .body("code", `is`(result.code))
 
         val inputCaptor = argumentCaptor<TransactUseCase.Input>()
-        verify(transactionExecutorService).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase).execute(inputCaptor.capture())
         val input = inputCaptor.firstValue
         assertThat(input.mcc).isEqualTo(request.mcc)
@@ -59,55 +54,25 @@ class TransactionControllerTest : EntrypointTest() {
     }
 
     @Test
-    fun `Given a timeout, when transact, then should return 200 (Ok) with error code`() {
-        val timeoutDuration = -1L
-        val merchantCategory = Faker.merchantCategory()
-        val request = Faker.transactRequest(merchantCategory)
-
-        Endpoints.TransactionController.transact(request, timeoutDuration.toString())
-            .statusCode(HttpStatus.OK.value())
-            .body("code", `is`(TransactionResult.ERROR.code))
-
-        verify(transactionExecutorService).submit(any<Callable<TransactResponse>>())
-    }
-
-    @Test
     fun `Given an exception, when transact, then should return 200 (Ok) with error code`() {
         val merchantCategory = Faker.merchantCategory()
         doThrow(RuntimeException()).`when`(transactUseCase).execute(any())
         val request = Faker.transactRequest(merchantCategory)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.OK.value())
             .body("code", `is`(TransactionResult.ERROR.code))
-    }
-
-    @Test
-    fun `Given a request without timeout duration, when transact, then should return 400 (Bad Request)`() {
-        val result = TransactionResult.entries.random()
-        val merchantCategory = Faker.merchantCategory()
-        doReturn(TransactUseCase.Output(result)).`when`(transactUseCase).execute(any())
-        val request = Faker.transactRequest(merchantCategory)
-
-        Endpoints.TransactionController.transact(request)
-            .statusCode(HttpStatus.BAD_REQUEST.value())
-            .body("code", `is`(INVALID_REQUEST_CODE))
-            .body("message", `is`("X-Max-Request-Duration: Failed to convert value of type 'java.lang.String' to required type 'long'; For input string: \"\""))
-
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
-        verify(transactUseCase, never()).execute(any())
     }
 
     @Test
     fun `Given a null account ID, when create, then should return 400 (Bad Request)`() {
         val request = Faker.transactRequest().copy(accountId = null)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("accountId: must not be null"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 
@@ -116,12 +81,11 @@ class TransactionControllerTest : EntrypointTest() {
     fun `Given a non-positive account ID, when create, then should return 400 (Bad Request)`(accountId: Long) {
         val request = Faker.transactRequest().copy(accountId = accountId)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("accountId: must be greater than 0"))
 
-        verify(transactionExecutorService, never()).submit(any())
         verify(transactUseCase, never()).execute(any())
     }
 
@@ -129,12 +93,11 @@ class TransactionControllerTest : EntrypointTest() {
     fun `Given a null amount, when create, then should return 400 (Bad Request)`() {
         val request = Faker.transactRequest().copy(amount = null)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("amount: must not be null"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 
@@ -143,12 +106,11 @@ class TransactionControllerTest : EntrypointTest() {
     fun `Given a negative or zero amount, when create, then should return 400 (Bad Request)`(amount: Float) {
         val request = Faker.transactRequest().copy(amount = amount.toBigDecimal())
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("amount: must be greater than 0"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 
@@ -157,12 +119,11 @@ class TransactionControllerTest : EntrypointTest() {
     fun `Given an amount out of bounds, when create, then should return 400 (Bad Request)`(amount: Float) {
         val request = Faker.transactRequest().copy(amount = amount.toBigDecimal())
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("amount: numeric value out of bounds (<14 digits>.<2 digits> expected)"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 
@@ -170,12 +131,11 @@ class TransactionControllerTest : EntrypointTest() {
     fun `Given an invalid external ID, when create, then should return 400 (Bad Request)`() {
         val request = Faker.transactRequest().copy(externalId = null)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("externalId: must not be null"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 
@@ -183,12 +143,11 @@ class TransactionControllerTest : EntrypointTest() {
     fun `Given a null merchant, when create, then should return 400 (Bad Request)`() {
         val request = Faker.transactRequest().copy(merchant = null)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("merchant: must not be null"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 
@@ -204,12 +163,11 @@ class TransactionControllerTest : EntrypointTest() {
         val request = Faker.transactRequest()
             .copy(merchant = Faker.numerify(merchant))
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("merchant: must have exactly 40 chars"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 
@@ -217,12 +175,11 @@ class TransactionControllerTest : EntrypointTest() {
     fun `Given a blank MCC, when create, then should return 400 (Bad Request)`() {
         val request = Faker.transactRequest().copy(mcc = null)
 
-        Endpoints.TransactionController.transact(request, TIMEOUT_DURATION)
+        Endpoints.TransactionController.transact(request)
             .statusCode(HttpStatus.BAD_REQUEST.value())
             .body("code", `is`(INVALID_REQUEST_CODE))
             .body("message", `is`("mcc: must not be null"))
 
-        verify(transactionExecutorService, never()).submit(any<Callable<TransactResponse>>())
         verify(transactUseCase, never()).execute(any())
     }
 

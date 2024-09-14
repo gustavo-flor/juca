@@ -2,11 +2,12 @@ package com.github.gustavoflor.juca.data.repository.query
 
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.data.repository.query.mapper.WalletMapper
+import org.springframework.dao.EmptyResultDataAccessException
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Component
 
 @Component
-class FindWalletsByAccountIdQuery(
+class FindWalletByAccountIdForUpdateQuery(
     private val jdbcTemplate: NamedParameterJdbcTemplate
 ) {
     companion object {
@@ -14,11 +15,16 @@ class FindWalletsByAccountIdQuery(
             SELECT *
             FROM wallet
             WHERE account_id = :accountId
+            FOR UPDATE
         """
     }
 
-    fun execute(accountId: Long): List<Wallet> {
+    fun execute(accountId: Long): Wallet? {
         val params = mapOf("accountId" to accountId)
-        return jdbcTemplate.query(SQL, params, WalletMapper())
+        return try {
+            jdbcTemplate.queryForObject(SQL, params, WalletMapper())
+        } catch (e: EmptyResultDataAccessException) {
+            null
+        }
     }
 }

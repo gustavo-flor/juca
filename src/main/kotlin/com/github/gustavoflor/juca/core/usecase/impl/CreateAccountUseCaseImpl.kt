@@ -20,8 +20,8 @@ class CreateAccountUseCaseImpl(
     override fun execute(): CreateAccountUseCase.Output {
         log.info("Executing create account use case...")
         val account = accountRepository.create()
-        val wallets = MerchantCategory.entries.map { Wallet.of(account, it) }
-            .let { walletRepository.createAll(it) }
-        return CreateAccountUseCase.Output(account, wallets)
+        val wallet = Wallet.of(account)
+            .let { walletRepository.create(it) }
+        return CreateAccountUseCase.Output(account, wallet)
     }
 }

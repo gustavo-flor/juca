@@ -156,8 +156,6 @@ Endpoint to handle the card transaction.
 - **Host**: `localhost:8080/api`
 - **Method**: `POST`
 - **URL**: `/v1/transactions`
-- **Request Headers**:
-  - X-Max-Request-Duration
 - **Request Body**:
   ```json
   {
@@ -174,12 +172,6 @@ Endpoint to handle the card transaction.
     "code": "00"
   }
   ```
-
-#### Request Parameters
-
-| name                                                    | description                                                                                                      |
-|---------------------------------------------------------|------------------------------------------------------------------------------------------------------------------|
-| X-Max-Request-Duration<span style="color: red">*</span> | **Int** (Header)<br/>Max request duration (in milliseconds), a timeout exception will be thrown if it's reached. |
 
 #### Request Parameters
 

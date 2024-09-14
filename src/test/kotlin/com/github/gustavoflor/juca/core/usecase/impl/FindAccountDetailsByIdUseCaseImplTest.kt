@@ -38,12 +38,12 @@ class FindAccountDetailsByIdUseCaseImplTest {
     fun `Given a known, when execute, then should return a list of wallets`() {
         val id = Random.nextLong(1, 99999)
         val input = FindWalletsByAccountIdUseCase.Input(id)
-        val wallets = Faker.wallets()
-        doReturn(wallets).`when`(walletRepository).findByAccountId(id)
+        val wallet = Faker.wallet()
+        doReturn(wallet).`when`(walletRepository).findByAccountId(id)
 
         val output = findAccountDetailsByIdUseCase.execute(input)
 
         verify(walletRepository).findByAccountId(id)
-        assertThat(output.wallets).isEqualTo(wallets)
+        assertThat(output.wallet).isEqualTo(wallet)
     }
 }

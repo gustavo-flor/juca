@@ -32,18 +32,15 @@ class AccountControllerTest : EntrypointTest() {
     @Test
     fun `Given a request, when create account, then should return 201 (Created)`() {
         val account = Faker.account()
-        val wallets = Faker.wallets().map { it.copy(accountId = account.id) }
-        doReturn(CreateAccountUseCase.Output(account, wallets)).`when`(createAccountUseCase).execute()
+        val wallet = Faker.wallet().copy(accountId = account.id)
+        doReturn(CreateAccountUseCase.Output(account, wallet)).`when`(createAccountUseCase).execute()
 
         Endpoints.AccountController.create()
             .statusCode(HttpStatus.CREATED.value())
             .body("id", `is`(account.id.toInt()))
-            .body("wallets[0].balance", `is`(wallets[0].balance.toFloat()))
-            .body("wallets[0].merchantCategory", `is`(wallets[0].merchantCategory.name))
-            .body("wallets[1].balance", `is`(wallets[1].balance.toFloat()))
-            .body("wallets[1].merchantCategory", `is`(wallets[1].merchantCategory.name))
-            .body("wallets[2].balance", `is`(wallets[2].balance.toFloat()))
-            .body("wallets[2].merchantCategory", `is`(wallets[2].merchantCategory.name))
+            .body("wallet.foodBalance", `is`(wallet.foodBalance.toFloat()))
+            .body("wallet.mealBalance", `is`(wallet.mealBalance.toFloat()))
+            .body("wallet.cashBalance", `is`(wallet.cashBalance.toFloat()))
 
         verify(createAccountUseCase).execute()
     }
@@ -51,18 +48,15 @@ class AccountControllerTest : EntrypointTest() {
     @Test
     fun `Given an ID, when find by ID, then should return 200 (OK)`() {
         val accountId = Random.nextLong(1, 99999)
-        val wallets = Faker.wallets().map { it.copy(accountId = accountId) }
-        doReturn(FindWalletsByAccountIdUseCase.Output(wallets)).`when`(findWalletsByAccountIdUseCase).execute(any())
+        val wallet = Faker.wallet().copy(accountId = accountId)
+        doReturn(FindWalletsByAccountIdUseCase.Output(wallet)).`when`(findWalletsByAccountIdUseCase).execute(any())
 
         Endpoints.AccountController.findById(accountId)
             .statusCode(HttpStatus.OK.value())
             .body("id", `is`(accountId.toInt()))
-            .body("wallets[0].balance", `is`(wallets[0].balance.toFloat()))
-            .body("wallets[0].merchantCategory", `is`(wallets[0].merchantCategory.name))
-            .body("wallets[1].balance", `is`(wallets[1].balance.toFloat()))
-            .body("wallets[1].merchantCategory", `is`(wallets[1].merchantCategory.name))
-            .body("wallets[2].balance", `is`(wallets[2].balance.toFloat()))
-            .body("wallets[2].merchantCategory", `is`(wallets[2].merchantCategory.name))
+            .body("wallet.foodBalance", `is`(wallet.foodBalance.toFloat()))
+            .body("wallet.mealBalance", `is`(wallet.mealBalance.toFloat()))
+            .body("wallet.cashBalance", `is`(wallet.cashBalance.toFloat()))
 
         val inputCaptor = argumentCaptor<FindWalletsByAccountIdUseCase.Input>()
         verify(findWalletsByAccountIdUseCase).execute(inputCaptor.capture())

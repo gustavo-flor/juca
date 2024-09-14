@@ -47,8 +47,9 @@ class TransactUseCaseImplTest : IntegrationTest() {
             val balance = Faker.money(999_999.99)
             val account = accountRepository.create()
             val mcc = Faker.merchantCategory(listOf(merchantCategory), true).let { Faker.mcc(it) }
-            Wallet.of(account, merchantCategory).copy(balance = balance)
-                .let { walletRepository.createAll(listOf(it)) }
+            Wallet.of(account)
+                .let { merchantCategory.credit(balance, it) }
+                .let { walletRepository.create(it) }
             val input = Faker.transactUseCaseInput().copy(
                 accountId = account.id,
                 merchantName = "PICPAY*$term",
@@ -67,8 +68,9 @@ class TransactUseCaseImplTest : IntegrationTest() {
                 assertThat(it.origin).isEqualTo("${input.merchantName} - ${input.address}")
                 assertThat(it.result).isEqualTo(TransactionResult.APPROVED)
             }
-            val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, merchantCategory)
-            assertThat(wallet?.balance).isEqualTo(balance - input.amount)
+            val wallet = walletRepository.findByAccountId(account.id)
+            assertThat(wallet).isNotNull
+            assertThat(merchantCategory.getBalance(wallet!!)).isEqualTo(balance - input.amount)
         }
     }
 
@@ -77,8 +79,7 @@ class TransactUseCaseImplTest : IntegrationTest() {
         val balance = BigDecimal.ZERO
         val account = accountRepository.create()
         val merchantCategory = Faker.merchantCategory()
-        MerchantCategory.entries.map { Wallet.of(account, it).copy(balance = balance) }
-            .let { walletRepository.createAll(it) }
+        Wallet.of(account).let { walletRepository.create(it) }
         val input = Faker.transactUseCaseInput().copy(
             accountId = account.id,
             mcc = Faker.mcc(merchantCategory)
@@ -96,8 +97,8 @@ class TransactUseCaseImplTest : IntegrationTest() {
             assertThat(it.origin).isEqualTo("${input.merchantName} - ${input.address}")
             assertThat(it.result).isEqualTo(TransactionResult.INSUFFICIENT_BALANCE)
         }
-        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, merchantCategory)
-        assertThat(wallet?.balance).isEqualTo(balance)
+        val wallet = walletRepository.findByAccountIdForUpdate(account.id)
+        assertThat(wallet?.let { merchantCategory.getBalance(it) }).isEqualTo(balance)
     }
 
     @Test
@@ -105,11 +106,7 @@ class TransactUseCaseImplTest : IntegrationTest() {
         val fallbackCategory = MerchantCategory.CASH
         val account = accountRepository.create()
         val balance = Faker.money(999_999.99)
-        val fallbackWallet = Wallet.of(account, fallbackCategory).copy(balance = balance)
-        MerchantCategory.entries
-            .filter { it != fallbackCategory }
-            .map { Wallet.of(account, it).copy(balance = BigDecimal.ZERO) }
-            .let { walletRepository.createAll(it + listOf(fallbackWallet)) }
+        Wallet.of(account).let { fallbackCategory.credit(balance, it) }.let { walletRepository.create(it) }
         val input = Faker.transactUseCaseInput().copy(
             accountId = account.id,
             merchantName = "PADARIA DO ZE",
@@ -127,8 +124,8 @@ class TransactUseCaseImplTest : IntegrationTest() {
             assertThat(it.origin).isEqualTo("${input.merchantName} - ${input.address}")
             assertThat(it.result).isEqualTo(TransactionResult.APPROVED)
         }
-        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, fallbackCategory)
-        assertThat(wallet?.balance).isEqualTo(balance - input.amount)
+        val wallet = walletRepository.findByAccountId(account.id)
+        assertThat(wallet?.let { fallbackCategory.getBalance(it) }).isEqualTo(balance - input.amount)
     }
 
     @Test
@@ -136,8 +133,8 @@ class TransactUseCaseImplTest : IntegrationTest() {
         val merchantCategory = MerchantCategory.CASH
         val balance = Faker.money(999_999.99)
         val account = accountRepository.create()
-        Wallet.of(account, merchantCategory).copy(balance = balance)
-            .let { walletRepository.createAll(listOf(it)) }
+        merchantCategory.credit(balance, Wallet.of(account))
+            .let { walletRepository.create(it) }
         val threadCount = Random.nextInt(5, 20)
         val amount = BigDecimal.TEN
 
@@ -154,8 +151,8 @@ class TransactUseCaseImplTest : IntegrationTest() {
 
         val transactions = transactionRepository.findAllByAccountId(account.id)
         assertThat(transactions.size).isEqualTo(threadCount)
-        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, merchantCategory)
-        assertThat(wallet?.balance).isEqualTo(balance - amount * threadCount.toBigDecimal())
+        val wallet = walletRepository.findByAccountId(account.id)
+        assertThat(wallet?.let { merchantCategory.getBalance(it) }).isEqualTo(balance - amount * threadCount.toBigDecimal())
     }
 
     @Test
@@ -163,8 +160,9 @@ class TransactUseCaseImplTest : IntegrationTest() {
         val merchantCategory = MerchantCategory.CASH
         val balance = BigDecimal.TEN
         val account = accountRepository.create()
-        Wallet.of(account, merchantCategory).copy(balance = balance)
-            .let { walletRepository.createAll(listOf(it)) }
+        Wallet.of(account)
+            .let { merchantCategory.credit(balance, it) }
+            .let { walletRepository.create(it) }
         val threadCount = Random.nextInt(10, 20)
         val amount = BigDecimal.ONE
         val expectedApproves = balance.toInt()
@@ -183,7 +181,7 @@ class TransactUseCaseImplTest : IntegrationTest() {
         val transactions = transactionRepository.findAllByAccountId(account.id)
         assertThat(transactions.filter { it.result == TransactionResult.APPROVED }.size).isEqualTo(expectedApproves)
         assertThat(transactions.filter { it.result == TransactionResult.INSUFFICIENT_BALANCE }.size).isEqualTo(threadCount - expectedApproves)
-        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(account.id, merchantCategory)
-        assertThat(wallet?.balance).isZero()
+        val wallet = walletRepository.findByAccountId(account.id)
+        assertThat(wallet?.let { merchantCategory.getBalance(it) }).isZero()
     }
 }

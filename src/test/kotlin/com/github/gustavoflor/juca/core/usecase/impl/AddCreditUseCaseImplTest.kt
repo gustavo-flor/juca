@@ -1,5 +1,6 @@
 package com.github.gustavoflor.juca.core.usecase.impl
 
+import com.github.gustavoflor.juca.core.domain.MerchantCategory
 import com.github.gustavoflor.juca.core.domain.TransactionResult
 import com.github.gustavoflor.juca.core.domain.TransactionType
 import com.github.gustavoflor.juca.core.entity.Transaction
@@ -38,25 +39,26 @@ class AddCreditUseCaseImplTest {
 
         assertThatThrownBy { creditUseCase.execute(input) }.isInstanceOf(AccountNotFoundException::class.java)
 
-        verify(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
+        verify(walletRepository).findByAccountIdForUpdate(input.accountId)
     }
 
     @Test
-    fun `Given a known account, when execute, then should return an updated wallet`() {
-        val input = Faker.creditUseCaseInput()
-        val wallet = Faker.wallet().copy(merchantCategory = input.merchantCategory)
-        doReturn(wallet).`when`(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
+    fun `Given a known account with food category, when execute, then should return an updated wallet`() {
+        val input = Faker.creditUseCaseInput().copy(merchantCategory = MerchantCategory.FOOD)
+        val wallet = Faker.wallet()
+        doReturn(wallet).`when`(walletRepository).findByAccountIdForUpdate(input.accountId)
         doAnswer { it.getArgument(0, Wallet::class.java) }.`when`(walletRepository).update(any())
 
         val output = creditUseCase.execute(input)
 
-        assertThat(output.wallet.balance).isEqualTo(wallet.balance.add(input.amount))
+        assertThat(output.wallet.foodBalance).isEqualTo(wallet.foodBalance.add(input.amount))
+        assertThat(output.wallet.mealBalance).isEqualTo(wallet.mealBalance)
+        assertThat(output.wallet.cashBalance).isEqualTo(wallet.cashBalance)
         assertThat(output.wallet.accountId).isEqualTo(wallet.accountId)
         assertThat(output.wallet.id).isEqualTo(wallet.id)
-        assertThat(output.wallet.merchantCategory).isEqualTo(wallet.merchantCategory)
         assertThat(output.wallet.createdAt).isEqualTo(wallet.createdAt)
         assertThat(output.wallet.updatedAt).isEqualTo(wallet.updatedAt)
-        verify(walletRepository).findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
+        verify(walletRepository).findByAccountIdForUpdate(input.accountId)
         verify(walletRepository).update(output.wallet)
         val transactionCaptor = argumentCaptor<Transaction>()
         verify(transactionRepository).create(transactionCaptor.capture())

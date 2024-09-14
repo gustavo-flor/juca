@@ -10,10 +10,8 @@ class FindWalletsByAccountIdUseCaseImpl(
     private val walletRepository: WalletRepository
 ) : FindWalletsByAccountIdUseCase {
     override fun execute(input: FindWalletsByAccountIdUseCase.Input): FindWalletsByAccountIdUseCase.Output {
-        val wallets = walletRepository.findByAccountId(input.accountId)
-        if (wallets.isEmpty()) {
-            throw AccountNotFoundException()
-        }
-        return FindWalletsByAccountIdUseCase.Output(wallets)
+        val wallet = walletRepository.findByAccountId(input.accountId)
+            ?: throw AccountNotFoundException()
+        return FindWalletsByAccountIdUseCase.Output(wallet)
     }
 }

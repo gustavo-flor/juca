@@ -26,14 +26,14 @@ class AccountController(
     fun findById(@PathVariable id: Long): AccountResponse = addAccountId(id).track().use {
         val input = FindWalletsByAccountIdUseCase.Input(id)
         val output = findWalletsByAccountIdUseCase.execute(input)
-        return AccountResponse.of(id, output.wallets)
+        return AccountResponse.of(id, output.wallet)
     }
 
     @PostMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
     @ResponseStatus(HttpStatus.CREATED)
     fun create(): AccountResponse {
         return createAccountUseCase.execute()
-            .let { AccountResponse.of(it.account.id, it.wallets) }
+            .let { AccountResponse.of(it.account.id, it.wallet) }
     }
 
     @GetMapping(path = ["/{id}/statement"], produces = [MediaType.APPLICATION_JSON_VALUE])

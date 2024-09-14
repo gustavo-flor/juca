@@ -37,7 +37,10 @@ class CreditControllerTest : EntrypointTest() {
 
         Endpoints.CreditController.create(request)
             .statusCode(HttpStatus.CREATED.value())
-            .body("balance", `is`(wallet.balance.toFloat()))
+            .body("id", `is`(request.accountId?.toInt()))
+            .body("wallet.foodBalance", `is`(wallet.foodBalance.toFloat()))
+            .body("wallet.mealBalance", `is`(wallet.mealBalance.toFloat()))
+            .body("wallet.cashBalance", `is`(wallet.cashBalance.toFloat()))
 
         val inputCaptor = argumentCaptor<AddCreditUseCase.Input>()
         verify(addCreditUseCase).execute(inputCaptor.capture())

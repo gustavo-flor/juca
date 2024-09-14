@@ -8,13 +8,14 @@ CREATE TABLE IF NOT EXISTS account(
 CREATE TABLE IF NOT EXISTS wallet(
     id BIGINT GENERATED ALWAYS AS IDENTITY NOT NULL,
     account_id BIGINT NOT NULL,
-    balance DECIMAL NOT NULL,
-    merchant_category VARCHAR NOT NULL,
+    food_balance DECIMAL NOT NULL,
+    meal_balance DECIMAL NOT NULL,
+    cash_balance DECIMAL NOT NULL,
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY (id),
     CONSTRAINT fk_account_wallet_account_id FOREIGN KEY (account_id) REFERENCES account(id),
-    UNIQUE(account_id, merchant_category)
+    UNIQUE(account_id)
 );
 
 CREATE TABLE IF NOT EXISTS transaction(

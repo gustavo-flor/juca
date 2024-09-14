@@ -14,16 +14,21 @@ class UpdateWalletCommand(
     companion object {
         private const val SQL = """
             UPDATE wallet
-            SET balance = :balance, updated_at = NOW()
-            WHERE account_id = :accountId AND merchant_category = :merchantCategory
+            SET 
+                food_balance = :foodBalance,
+                meal_balance = :mealBalance,
+                cash_balance = :cashBalance,
+                updated_at = NOW()
+            WHERE account_id = :accountId
         """
     }
 
     fun execute(wallet: Wallet): Wallet {
         val params = mapOf(
-            "balance" to wallet.balance,
-            "accountId" to wallet.accountId,
-            "merchantCategory" to wallet.merchantCategory.name,
+            "foodBalance" to wallet.foodBalance,
+            "mealBalance" to wallet.mealBalance,
+            "cashBalance" to wallet.cashBalance,
+            "accountId" to wallet.accountId
         )
         val keyHolder = GeneratedKeyHolder()
         val keys = arrayOf("updated_at")

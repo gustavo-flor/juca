@@ -16,6 +16,9 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.verify
+import java.time.LocalDateTime
+import java.util.UUID
+import kotlin.random.Random
 
 @ExtendWith(MockitoExtension::class)
 class CreateAccountUseCaseImplTest {
@@ -32,19 +35,20 @@ class CreateAccountUseCaseImplTest {
     fun `Given a request, when create, then should create account and wallets`() {
         val account = Faker.account()
         doReturn(account).`when`(accountRepository).create()
-        doAnswer { it.getArgument(0) as List<Wallet> }.`when`(walletRepository).createAll(any())
+        doAnswer { it.getArgument(0, Wallet::class.java) }.`when`(walletRepository).create(any())
 
         createAccountUseCase.execute()
 
-        val walletsCaptor = argumentCaptor<List<Wallet>>()
+        val walletCaptor = argumentCaptor<Wallet>()
         verify(accountRepository).create()
-        verify(walletRepository).createAll(walletsCaptor.capture())
-        val wallets = walletsCaptor.firstValue
-        MerchantCategory.entries.forEach { merchantCategory ->
-            val wallet = wallets.firstOrNull() { it.merchantCategory == merchantCategory }
-            assertThat(wallet).isNotNull
-            assertThat(wallet?.balance).isZero()
-            assertThat(wallet?.accountId).isEqualTo(account.id)
-        }
+        verify(walletRepository).create(walletCaptor.capture())
+        val wallet = walletCaptor.firstValue
+        assertThat(wallet.id).isNull()
+        assertThat(wallet.createdAt).isNull()
+        assertThat(wallet.updatedAt).isNull()
+        assertThat(wallet.foodBalance).isZero()
+        assertThat(wallet.mealBalance).isZero()
+        assertThat(wallet.cashBalance).isZero()
+        assertThat(wallet.accountId).isEqualTo(account.id)
     }
 }

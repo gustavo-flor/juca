@@ -8,6 +8,6 @@ interface CreateAccountUseCase {
 
     data class Output(
         val account: Account,
-        val wallets: List<Wallet>
+        val wallet: Wallet
     )
 }

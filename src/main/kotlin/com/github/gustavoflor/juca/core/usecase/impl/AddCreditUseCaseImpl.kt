@@ -18,9 +18,11 @@ class AddCreditUseCaseImpl(
     @Transactional
     override fun execute(input: AddCreditUseCase.Input): AddCreditUseCase.Output {
         log.info("Executing credit use case...")
-        val wallet = walletRepository.findByAccountIdAndMerchantCategoryForUpdate(input.accountId, input.merchantCategory)
+        val wallet = walletRepository.findByAccountIdForUpdate(input.accountId)
             ?: throw AccountNotFoundException()
-        return wallet.credit(input.amount)
+        val merchantCategory = input.merchantCategory
+        val amount = input.amount
+        return merchantCategory.credit(amount, wallet)
             .let { walletRepository.update(it) }
             .also { transactionRepository.create(input.transaction()) }
             .let { AddCreditUseCase.Output(it) }

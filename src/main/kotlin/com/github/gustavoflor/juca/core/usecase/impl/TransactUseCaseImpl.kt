@@ -1,29 +1,24 @@
 package com.github.gustavoflor.juca.core.usecase.impl
 
 import com.github.gustavoflor.juca.core.domain.MerchantCategory
+import com.github.gustavoflor.juca.core.domain.TransactionResult
 import com.github.gustavoflor.juca.core.entity.Transaction
 import com.github.gustavoflor.juca.core.entity.Wallet
 import com.github.gustavoflor.juca.core.exception.AccountNotFoundException
 import com.github.gustavoflor.juca.core.mapping.UseCase
-import com.github.gustavoflor.juca.core.policy.DebitPolicy
 import com.github.gustavoflor.juca.core.repository.MerchantCategoryTermRepository
 import com.github.gustavoflor.juca.core.repository.TransactionRepository
 import com.github.gustavoflor.juca.core.repository.WalletRepository
 import com.github.gustavoflor.juca.core.usecase.TransactUseCase
 import org.apache.logging.log4j.LogManager
 import org.springframework.transaction.annotation.Transactional
-import java.math.BigDecimal
 
 @UseCase
 class TransactUseCaseImpl(
     private val walletRepository: WalletRepository,
     private val merchantCategoryTermRepository: MerchantCategoryTermRepository,
-    private val transactionRepository: TransactionRepository,
-    private val debitPolicy: DebitPolicy
+    private val transactionRepository: TransactionRepository
 ) : TransactUseCase {
-    companion object {
-        private val FALLBACK_MERCHANT_CATEGORY = MerchantCategory.CASH
-    }
 
     private val log = LogManager.getLogger(javaClass)
 
@@ -36,22 +31,24 @@ class TransactUseCaseImpl(
 
     private fun transact(input: TransactUseCase.Input): Transaction {
         val merchantCategory = getMerchantCategory(input)
-        val targetWallet = getTargetWallet(input.accountId, merchantCategory)
-        val fallbackWallet = getFallbackWallet(input.amount, targetWallet)
-        val debitOutput = DebitPolicy.Input(input.amount, targetWallet, fallbackWallet)
-            .let { debitPolicy.execute(it) }
-        debitOutput.targetAmount
-            ?.let { targetWallet.debit(it) }
-            ?.let { walletRepository.update(it) }
-        debitOutput.fallbackAmount
-            ?.let { fallbackWallet?.debit(it) }
-            ?.let { walletRepository.update(it) }
-        return input.transaction(merchantCategory, debitOutput.transactionResult)
+        val result = debit(merchantCategory, input)
+        return input.transaction(merchantCategory, result)
             .let { transactionRepository.create(it) }
     }
 
-    private fun getTargetWallet(accountId: Long, merchantCategory: MerchantCategory): Wallet {
-        return walletRepository.findByAccountIdAndMerchantCategoryForUpdate(accountId, merchantCategory)
+    private fun debit(merchantCategory: MerchantCategory, input: TransactUseCase.Input): TransactionResult {
+        val amount = input.amount
+        val wallet = getWallet(input.accountId)
+        val totalBalance = merchantCategory.getTotalBalance(wallet)
+        if (amount > totalBalance) {
+            return TransactionResult.INSUFFICIENT_BALANCE
+        }
+        merchantCategory.debit(amount, wallet).let { walletRepository.update(it) }
+        return TransactionResult.APPROVED
+    }
+
+    private fun getWallet(accountId: Long): Wallet {
+        return walletRepository.findByAccountIdForUpdate(accountId)
             ?: throw AccountNotFoundException()
     }
 
@@ -60,12 +57,5 @@ class TransactUseCaseImpl(
             .filterValues { terms -> terms.any() { input.merchantName.contains(it, true) } }
             .map { it.key }
             .firstOrNull() ?: MerchantCategory.getByCode(input.mcc)
-    }
-
-    private fun getFallbackWallet(amount: BigDecimal, targetWallet: Wallet): Wallet? {
-        if (targetWallet.balance >= amount || targetWallet.merchantCategory == FALLBACK_MERCHANT_CATEGORY) {
-            return null
-        }
-        return walletRepository.findByAccountIdAndMerchantCategoryForUpdate(targetWallet.accountId, FALLBACK_MERCHANT_CATEGORY)
     }
 }

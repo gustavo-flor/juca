@@ -52,16 +52,15 @@ object Faker {
         merchantCategory = merchantCategory()
     )
 
-    fun wallet(merchantCategory: MerchantCategory = merchantCategory()) = Wallet(
+    fun wallet() = Wallet(
         id = id(),
         accountId = id(),
-        balance = money(),
-        merchantCategory = merchantCategory,
+        foodBalance = money(),
+        mealBalance = money(),
+        cashBalance = money(),
         createdAt = LocalDateTime.now(),
         updatedAt = LocalDateTime.now()
     )
-
-    fun wallets() = MerchantCategory.entries.map { wallet(it) }
 
     fun money(
         from: Double = 0.0,
