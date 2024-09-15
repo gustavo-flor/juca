@@ -51,30 +51,22 @@ Endpoint to create an account and wallets.
   ```json
   {
     "id": 1,
-    "wallets": [
-      {
-        "balance": 0,
-        "merchantCategory": "MEAL"
-      },
-      {
-        "balance": 0,
-        "merchantCategory": "FOOD"
-      },
-      {
-        "balance": 0,
-        "merchantCategory": "CASH"
-      }
-    ]
+    "wallet": {
+      "foodBalance": 0.00,
+      "mealBalance": 0.00,
+      "cashBalance": 0.00
+    }
   }
   ```
 
 #### Response Properties
 
-| name                        | description                                              |
-|-----------------------------|----------------------------------------------------------|
-| id                          | **Int**<br/>New account identifier.                      |
-| wallets[?].balance          | **String**<br/>New wallet balance. Usually it will be 0. |
-| wallets[?].merchantCategory | **String**<br/>Wallet benefit category.                  |
+| name                        | description                                                      |
+|-----------------------------|------------------------------------------------------------------|
+| id                          | **Int**<br/>New account identifier.                              |
+| wallets.foodBalance         | **String**<br/>New wallet food balance. Usually it will be zero. |
+| wallets.mealBalance         | **String**<br/>New wallet meal balance. Usually it will be zero. |
+| wallets.cashBalance         | **String**<br/>New wallet cash balance. Usually it will be zero. |
 
 ### Add Credit
 
@@ -94,7 +86,12 @@ If you want to add money to an account wallet, that's your endpoint.
 - **Response Body**:
   ```json
   {
-    "balance": 200.00
+    "id": 1,
+    "wallet": {
+      "foodBalance": 200.00,
+      "mealBalance": 0.00,
+      "cashBalance": 0.00
+    }
   }
   ```
 
@@ -108,9 +105,12 @@ If you want to add money to an account wallet, that's your endpoint.
 
 #### Response Properties
 
-| name    | description                                        |
-|---------|----------------------------------------------------|
-| balance | <strong>Float</strong><br/>Updated wallet balance. |
+| name               | description                                             |
+|--------------------|---------------------------------------------------------|
+| wallet.foodBalance | <strong>Float</strong><br/>Updated wallet food balance. |
+| wallet.mealBalance | <strong>Float</strong><br/>Updated wallet meal balance. |
+| wallet.cashBalance | <strong>Float</strong><br/>Updated wallet cash balance. |
+
 
 ### Find Wallets by Account ID
 
@@ -124,20 +124,11 @@ Endpoint to check the values of each benefit available on an account.
   ```json
   {
     "id": 1,
-    "wallets": [
-      {
-        "balance": 0,
-        "merchantCategory": "MEAL"
-      },
-      {
-        "balance": 200,
-        "merchantCategory": "FOOD"
-      },
-      {
-        "balance": 0,
-        "merchantCategory": "CASH"
-      }
-    ]
+    "wallet": {
+      "foodBalance": 200.00,
+      "mealBalance": 0.00,
+      "cashBalance": 0.00
+    }
   }
   ```
 
@@ -149,11 +140,12 @@ Endpoint to check the values of each benefit available on an account.
 
 #### Response Properties
 
-| name                        | description                             |
-|-----------------------------|-----------------------------------------|
-| id                          | **Int**<br/>Account identifier.         |
-| wallets[?].balance          | **String**<br/>Wallet balance.          |
-| wallets[?].merchantCategory | **String**<br/>Wallet benefit category. |
+| name                | description                         |
+|---------------------|-------------------------------------|
+| id                  | **Int**<br/>Account identifier.     |
+| wallets.foodBalance | **String**<br/>Wallet food balance. |
+| wallets.mealBalance | **String**<br/>Wallet meal balance. |
+| wallets.cashBalance | **String**<br/>Wallet cash balance. |
 
 ### Transact
 
@@ -165,7 +157,7 @@ Endpoint to handle the card transaction.
 - **Request Body**:
   ```json
   {
-    "externalId": "123",
+    "externalId": "964df205-d29d-42a1-8cf0-f684afae6ffe",
     "accountId": 1,
     "amount": 50.00,
     "mcc": "5411",
@@ -209,7 +201,7 @@ Endpoint to visualize the statement of an account.
   {
     "transactions": [
       {
-        "externalId": "123",
+        "externalId": "964df205-d29d-42a1-8cf0-f684afae6ffe",
         "origin": "PADARIA DO ZE - SAO PAULO BR",
         "accountId": 1,
         "amount": 50.00,
